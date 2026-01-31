@@ -4,6 +4,7 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -52,7 +53,7 @@ fun CalendarScreen(
     val today = LocalDate.now()
     val isCurrentMonth = currentMonth == YearMonth.now()
     
-    val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val isDark = isSystemInDarkTheme()
     
     Box(
         modifier = Modifier

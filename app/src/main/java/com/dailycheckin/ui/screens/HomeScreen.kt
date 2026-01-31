@@ -4,6 +4,7 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -160,7 +161,7 @@ fun HomeScreen(
 
 @Composable
 private fun GradientBackground(animatedOffset: Float) {
-    val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val isDark = isSystemInDarkTheme()
     
     Canvas(modifier = Modifier.fillMaxSize()) {
         val width = size.width
