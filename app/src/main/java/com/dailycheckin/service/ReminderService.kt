@@ -245,14 +245,33 @@ class ReminderService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         
+        // 获取连续签到天数和提醒时间
+        val consecutiveDays = dataStore.getConsecutiveDays()
+        val (hour, minute) = dataStore.getReminderTimeSync()
+        val timeStr = String.format("%02d:%02d", hour, minute)
+        
+        val contentText = if (consecutiveDays > 0) {
+            "🔥 已连续 $consecutiveDays 天 · 提醒时间 $timeStr"
+        } else {
+            "提醒时间 $timeStr"
+        }
+        
         return NotificationCompat.Builder(this, SERVICE_CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_menu_my_calendar)
             .setContentTitle(getString(R.string.service_notification_title))
-            .setContentText(getString(R.string.service_notification_content))
+            .setContentText(contentText)
             .setPriority(NotificationCompat.PRIORITY_MIN)
             .setOngoing(true)
             .setSilent(true)
             .setContentIntent(pendingIntent)
             .build()
+    }
+    
+    /**
+     * 更新前台服务通知
+     */
+    private fun updateServiceNotification() {
+        val notificationManager = getSystemService(NotificationManager::class.java)
+        notificationManager.notify(SERVICE_NOTIFICATION_ID, createServiceNotification())
     }
 }

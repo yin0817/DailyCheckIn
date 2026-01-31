@@ -1,25 +1,25 @@
 package com.dailycheckin.ui.screens
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.rounded.ChevronLeft
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -46,326 +46,331 @@ fun CalendarScreen(
     val checkedInDates = remember(currentMonth) {
         dataStore.getCheckInDatesForMonth(currentMonth.year, currentMonth.monthValue)
     }
+    val allCheckedInDates = remember { dataStore.getCheckInDatesSync() }
+    val consecutiveDays = remember { dataStore.getConsecutiveDays() }
     
-    val monthFormatter = DateTimeFormatter.ofPattern("yyyy年MM月", Locale.CHINA)
     val today = LocalDate.now()
     val isCurrentMonth = currentMonth == YearMonth.now()
     
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.calendar_title)) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                        MaterialTheme.colorScheme.background,
+                        MaterialTheme.colorScheme.tertiary.copy(alpha = 0.03f)
+                    )
                 )
             )
-        }
-    ) { paddingValues ->
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
-                            MaterialTheme.colorScheme.background
-                        )
-                    )
-                )
-                .padding(16.dp)
+                .statusBarsPadding()
         ) {
-            // 月份导航卡片
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .shadow(
-                        elevation = 4.dp,
-                        shape = RoundedCornerShape(20.dp),
-                        spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                    ),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(
-                        onClick = { currentMonth = currentMonth.minusMonths(1) }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.ChevronLeft,
-                            contentDescription = "Previous Month",
-                            modifier = Modifier.size(32.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                    
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = currentMonth.format(monthFormatter),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        if (isCurrentMonth) {
-                            Text(
-                                text = "本月",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-                    
-                    IconButton(
-                        onClick = { currentMonth = currentMonth.plusMonths(1) }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.ChevronRight,
-                            contentDescription = "Next Month",
-                            modifier = Modifier.size(32.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(20.dp))
-            
-            // 日历卡片
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .shadow(
-                        elevation = 4.dp,
-                        shape = RoundedCornerShape(20.dp),
-                        spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                    ),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    // 星期标题
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        val weekDays = listOf(
-                            R.string.sun, R.string.mon, R.string.tue, R.string.wed,
-                            R.string.thu, R.string.fri, R.string.sat
-                        )
-                        weekDays.forEachIndexed { index, dayRes ->
-                            val isWeekend = index == 0 || index == 6
-                            Text(
-                                text = context.getString(dayRes),
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.SemiBold,
-                                color = if (isWeekend) 
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.7f) 
-                                else 
-                                    MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.weight(1f),
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-                    
-                    Spacer(modifier = Modifier.height(12.dp))
-                    
-                    HorizontalDivider(
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    // 日历网格
-                    CalendarGrid(
-                        yearMonth = currentMonth,
-                        checkedInDates = checkedInDates,
-                        today = today
-                    )
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(20.dp))
-            
-            // 统计信息卡片
-            val daysInMonth = currentMonth.lengthOfMonth()
-            val checkedInCount = checkedInDates.count { 
-                it.year == currentMonth.year && it.monthValue == currentMonth.monthValue 
-            }
-            val percentage = if (daysInMonth > 0) (checkedInCount * 100 / daysInMonth) else 0
-            
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .shadow(
-                        elevation = 4.dp,
-                        shape = RoundedCornerShape(20.dp),
-                        spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                    ),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    // 打卡天数
-                    StatItem(
-                        value = checkedInCount.toString(),
-                        label = "打卡天数",
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    
-                    // 分隔线
-                    Box(
-                        modifier = Modifier
-                            .width(1.dp)
-                            .height(60.dp)
-                            .background(
-                                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                            )
-                    )
-                    
-                    // 打卡率
-                    StatItem(
-                        value = "$percentage%",
-                        label = "打卡率",
-                        color = when {
-                            percentage >= 80 -> Color(0xFF4CAF50)
-                            percentage >= 50 -> Color(0xFFFF9800)
-                            else -> MaterialTheme.colorScheme.error
-                        }
-                    )
-                    
-                    // 分隔线
-                    Box(
-                        modifier = Modifier
-                            .width(1.dp)
-                            .height(60.dp)
-                            .background(
-                                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                            )
-                    )
-                    
-                    // 剩余天数
-                    val remainingDays = if (isCurrentMonth) {
-                        daysInMonth - today.dayOfMonth
-                    } else if (currentMonth.isBefore(YearMonth.now())) {
-                        0
-                    } else {
-                        daysInMonth
-                    }
-                    StatItem(
-                        value = remainingDays.toString(),
-                        label = "剩余天数",
-                        color = MaterialTheme.colorScheme.tertiary
-                    )
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // 图例说明
+            // 自定义顶部栏
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                LegendItem(
-                    color = MaterialTheme.colorScheme.primary,
-                    text = "已打卡"
+                IconButton(
+                    onClick = onNavigateBack,
+                    modifier = Modifier
+                        .size(44.dp)
+                        .background(
+                            MaterialTheme.colorScheme.surface,
+                            CircleShape
+                        )
+                ) {
+                    Icon(
+                        Icons.Rounded.Close,
+                        contentDescription = "返回",
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                
+                Spacer(modifier = Modifier.weight(1f))
+                
+                Text(
+                    text = "打卡日历",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
                 )
-                Spacer(modifier = Modifier.width(24.dp))
-                LegendItem(
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    text = "今天",
-                    hasBorder = true
+                
+                Spacer(modifier = Modifier.weight(1f))
+                
+                // 占位保持标题居中
+                Box(modifier = Modifier.size(44.dp))
+            }
+            
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp)
+            ) {
+                // 统计总览卡片
+                OverviewCard(
+                    totalCheckIns = allCheckedInDates.size,
+                    consecutiveDays = consecutiveDays,
+                    thisMonthCheckIns = checkedInDates.size
                 )
+                
+                Spacer(modifier = Modifier.height(20.dp))
+                
+                // 月份导航
+                MonthNavigator(
+                    currentMonth = currentMonth,
+                    isCurrentMonth = isCurrentMonth,
+                    onPreviousMonth = { currentMonth = currentMonth.minusMonths(1) },
+                    onNextMonth = { currentMonth = currentMonth.plusMonths(1) },
+                    onTodayClick = { currentMonth = YearMonth.now() }
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // 日历主体
+                CalendarCard(
+                    yearMonth = currentMonth,
+                    checkedInDates = checkedInDates,
+                    today = today
+                )
+                
+                Spacer(modifier = Modifier.height(20.dp))
+                
+                // 本月统计
+                MonthStatsCard(
+                    yearMonth = currentMonth,
+                    checkedInCount = checkedInDates.size,
+                    isCurrentMonth = isCurrentMonth,
+                    today = today
+                )
+                
+                Spacer(modifier = Modifier.height(32.dp))
             }
         }
     }
 }
 
 @Composable
-private fun StatItem(
+private fun OverviewCard(
+    totalCheckIns: Int,
+    consecutiveDays: Int,
+    thisMonthCheckIns: Int
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 16.dp,
+                shape = RoundedCornerShape(24.dp),
+                spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+            ),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primary
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            OverviewItem(
+                emoji = "📅",
+                value = totalCheckIns.toString(),
+                label = "总打卡"
+            )
+            
+            Box(
+                modifier = Modifier
+                    .width(1.dp)
+                    .height(50.dp)
+                    .background(Color.White.copy(alpha = 0.3f))
+            )
+            
+            OverviewItem(
+                emoji = "🔥",
+                value = consecutiveDays.toString(),
+                label = "连续天数"
+            )
+            
+            Box(
+                modifier = Modifier
+                    .width(1.dp)
+                    .height(50.dp)
+                    .background(Color.White.copy(alpha = 0.3f))
+            )
+            
+            OverviewItem(
+                emoji = "📆",
+                value = thisMonthCheckIns.toString(),
+                label = "本月打卡"
+            )
+        }
+    }
+}
+
+@Composable
+private fun OverviewItem(
+    emoji: String,
     value: String,
-    label: String,
-    color: Color
+    label: String
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Text(text = emoji, fontSize = 20.sp)
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = value,
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            color = color
+            color = Color.White
         )
-        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = label,
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = Color.White.copy(alpha = 0.8f)
         )
     }
 }
 
 @Composable
-private fun LegendItem(
-    color: Color,
-    text: String,
-    hasBorder: Boolean = false
+private fun MonthNavigator(
+    currentMonth: YearMonth,
+    isCurrentMonth: Boolean,
+    onPreviousMonth: () -> Unit,
+    onNextMonth: () -> Unit,
+    onTodayClick: () -> Unit
 ) {
+    val monthFormatter = DateTimeFormatter.ofPattern("yyyy年MM月", Locale.CHINA)
+    
     Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
+        IconButton(
+            onClick = onPreviousMonth,
             modifier = Modifier
-                .size(16.dp)
-                .clip(CircleShape)
-                .background(color)
-                .then(
-                    if (hasBorder) Modifier.border(
-                        width = 2.dp,
-                        color = MaterialTheme.colorScheme.primary,
-                        shape = CircleShape
-                    ) else Modifier
+                .size(44.dp)
+                .background(
+                    MaterialTheme.colorScheme.surface,
+                    CircleShape
                 )
+        ) {
+            Icon(
+                Icons.Rounded.ChevronLeft,
+                contentDescription = "上一月",
+                modifier = Modifier.size(28.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.clickable(
+                enabled = !isCurrentMonth,
+                onClick = onTodayClick
+            )
+        ) {
+            Text(
+                text = currentMonth.format(monthFormatter),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+            AnimatedVisibility(visible = !isCurrentMonth) {
+                Text(
+                    text = "点击返回本月",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+        
+        IconButton(
+            onClick = onNextMonth,
+            modifier = Modifier
+                .size(44.dp)
+                .background(
+                    MaterialTheme.colorScheme.surface,
+                    CircleShape
+                )
+        ) {
+            Icon(
+                Icons.Rounded.ChevronRight,
+                contentDescription = "下一月",
+                modifier = Modifier.size(28.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
+
+@Composable
+private fun CalendarCard(
+    yearMonth: YearMonth,
+    checkedInDates: Set<LocalDate>,
+    today: LocalDate
+) {
+    val context = LocalContext.current
+    
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 8.dp,
+                shape = RoundedCornerShape(24.dp),
+                spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+            ),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
         )
-        Spacer(modifier = Modifier.width(6.dp))
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            // 星期标题
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                val weekDays = listOf("日", "一", "二", "三", "四", "五", "六")
+                weekDays.forEachIndexed { index, day ->
+                    val isWeekend = index == 0 || index == 6
+                    Box(
+                        modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = day,
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            color = if (isWeekend)
+                                MaterialTheme.colorScheme.primary
+                            else
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            // 日历网格
+            CalendarGrid(
+                yearMonth = yearMonth,
+                checkedInDates = checkedInDates,
+                today = today
+            )
+        }
     }
 }
 
@@ -379,10 +384,12 @@ private fun CalendarGrid(
     val daysInMonth = yearMonth.lengthOfMonth()
     val firstDayOfWeek = firstDayOfMonth.dayOfWeek.value % 7
     
-    Column {
-        val totalCells = firstDayOfWeek + daysInMonth
-        val rows = (totalCells + 6) / 7
-        
+    val totalCells = firstDayOfWeek + daysInMonth
+    val rows = (totalCells + 6) / 7
+    
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
         for (row in 0 until rows) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -412,10 +419,6 @@ private fun CalendarGrid(
                     }
                 }
             }
-            
-            if (row < rows - 1) {
-                Spacer(modifier = Modifier.height(6.dp))
-            }
         }
     }
 }
@@ -435,54 +438,209 @@ private fun DayCell(
         label = "scale"
     )
     
-    val backgroundColor by animateColorAsState(
-        targetValue = when {
-            isCheckedIn -> MaterialTheme.colorScheme.primary
-            isToday -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-            else -> Color.Transparent
-        },
-        label = "bg_color"
-    )
-    
     Box(
         modifier = modifier
             .aspectRatio(1f)
-            .padding(3.dp)
-            .scale(scale)
-            .clip(CircleShape)
-            .background(backgroundColor)
-            .then(
-                if (isToday && !isCheckedIn) {
-                    Modifier.border(
-                        width = 2.dp,
-                        color = MaterialTheme.colorScheme.primary,
-                        shape = CircleShape
-                    )
-                } else Modifier
-            ),
+            .padding(2.dp),
         contentAlignment = Alignment.Center
     ) {
-        if (isCheckedIn) {
-            // 打卡日显示勾号
-            Icon(
-                imageVector = Icons.Default.Check,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp),
-                tint = MaterialTheme.colorScheme.onPrimary
-            )
-        } else {
-            Text(
-                text = day.toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-                color = when {
-                    isFuture -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-                    isToday -> MaterialTheme.colorScheme.primary
-                    isWeekend -> MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
-                    else -> MaterialTheme.colorScheme.onSurface
-                }
-            )
+        // 背景
+        Box(
+            modifier = Modifier
+                .fillMaxSize(0.85f)
+                .clip(RoundedCornerShape(12.dp))
+                .background(
+                    when {
+                        isCheckedIn -> Brush.linearGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.primary,
+                                MaterialTheme.colorScheme.tertiary
+                            )
+                        )
+                        isToday -> Brush.linearGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.primaryContainer,
+                                MaterialTheme.colorScheme.primaryContainer
+                            )
+                        )
+                        else -> Brush.linearGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.Transparent
+                            )
+                        )
+                    }
+                )
+                .then(
+                    if (isToday && !isCheckedIn) {
+                        Modifier.border(
+                            width = 2.dp,
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                    } else Modifier
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            if (isCheckedIn) {
+                Icon(
+                    Icons.Default.Check,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(20.dp)
+                )
+            } else {
+                Text(
+                    text = day.toString(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
+                    color = when {
+                        isFuture -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                        isToday -> MaterialTheme.colorScheme.primary
+                        isWeekend -> MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                        else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                    }
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun MonthStatsCard(
+    yearMonth: YearMonth,
+    checkedInCount: Int,
+    isCurrentMonth: Boolean,
+    today: LocalDate
+) {
+    val daysInMonth = yearMonth.lengthOfMonth()
+    val passedDays = if (isCurrentMonth) today.dayOfMonth else daysInMonth
+    val percentage = if (passedDays > 0) (checkedInCount * 100 / passedDays) else 0
+    
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp)
+        ) {
+            Text(
+                text = "本月统计",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // 进度条
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "打卡率",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "$percentage%",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = when {
+                            percentage >= 80 -> Color(0xFF4CAF50)
+                            percentage >= 50 -> Color(0xFFFF9800)
+                            else -> MaterialTheme.colorScheme.error
+                        }
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                // 进度条
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(12.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(percentage / 100f)
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(
+                                Brush.horizontalGradient(
+                                    colors = when {
+                                        percentage >= 80 -> listOf(
+                                            Color(0xFF4CAF50),
+                                            Color(0xFF8BC34A)
+                                        )
+                                        percentage >= 50 -> listOf(
+                                            Color(0xFFFF9800),
+                                            Color(0xFFFFC107)
+                                        )
+                                        else -> listOf(
+                                            MaterialTheme.colorScheme.error,
+                                            MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+                                        )
+                                    }
+                                )
+                            )
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                StatItem(
+                    label = "已打卡",
+                    value = "$checkedInCount 天",
+                    color = MaterialTheme.colorScheme.primary
+                )
+                StatItem(
+                    label = if (isCurrentMonth) "已过去" else "总天数",
+                    value = "$passedDays 天",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                StatItem(
+                    label = "未打卡",
+                    value = "${passedDays - checkedInCount} 天",
+                    color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun StatItem(
+    label: String,
+    value: String,
+    color: Color
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = color
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
