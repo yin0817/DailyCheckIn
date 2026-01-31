@@ -8,6 +8,7 @@
     <color name="tertiary">#06B6D4</color>
     
     <!-- 强调色 -->
+    <color name="accent">#8B5CF6</color>
     <color name="accent_pink">#EC4899</color>
     <color name="accent_amber">#F59E0B</color>
     <color name="accent_emerald">#10B981</color>
