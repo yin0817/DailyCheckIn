@@ -1,9 +1,13 @@
 package com.dailycheckin
 
 import android.Manifest
+import android.app.AlarmManager
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -67,7 +71,9 @@ class MainActivity : ComponentActivity() {
             val isFirst = dataStore.isFirstLaunch.first()
             if (isFirst) {
                 dataStore.setFirstLaunchComplete()
-                // 首次启动设置默认提醒
+            }
+            // 每次启动都重新设置提醒（因为闹钟可能被系统清除）
+            if (dataStore.isReminderEnabledSync()) {
                 NotificationHelper.scheduleDailyReminder(this@MainActivity)
             }
         }
@@ -94,6 +100,35 @@ class MainActivity : ComponentActivity() {
         // 刷新主题设置
         lifecycleScope.launch {
             themeMode = dataStore.themeMode.first()
+        }
+        
+        // 每次恢复时检查并重新设置提醒（用户可能刚授予了精确闹钟权限）
+        lifecycleScope.launch {
+            if (dataStore.isReminderEnabledSync()) {
+                NotificationHelper.scheduleDailyReminder(this@MainActivity)
+            }
+        }
+    }
+    
+    /**
+     * 检查是否有精确闹钟权限（Android 12+）
+     */
+    private fun canScheduleExactAlarms(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            alarmManager.canScheduleExactAlarms()
+        } else {
+            true
+        }
+    }
+    
+    /**
+     * 打开精确闹钟权限设置页面（Android 12+）
+     */
+    private fun requestExactAlarmPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+            startActivity(intent)
         }
     }
 }
