@@ -31,7 +31,6 @@ class ReminderService : Service() {
         const val SERVICE_CHANNEL_ID = "reminder_service_channel"
         const val SERVICE_NOTIFICATION_ID = 1002
         const val ACTION_REFRESH = "com.dailycheckin.ACTION_REFRESH_NOTIFICATION"
-        private const val CHECK_INTERVAL = 30 * 1000L // 每30秒检查一次
         private const val TAG = "ReminderService"
         private const val PREFS_NAME = "reminder_service_prefs"
         private const val KEY_NOTIFIED_TODAY = "notified_today"
@@ -96,12 +95,8 @@ class ReminderService : Service() {
     private lateinit var prefs: SharedPreferences
     private var wakeLock: PowerManager.WakeLock? = null
     
-    private val checkRunnable = object : Runnable {
-        override fun run() {
-            checkAndNotify()
-            handler.postDelayed(this, CHECK_INTERVAL)
-        }
-    }
+    // 精确定时提醒的 Runnable
+    private var reminderRunnable: Runnable? = null
     
     override fun onCreate() {
         super.onCreate()
@@ -121,14 +116,128 @@ class ReminderService : Service() {
         // 处理刷新请求
         if (intent?.action == ACTION_REFRESH) {
             updateServiceNotification()
+            // 重新安排提醒（时间可能已改变）
+            scheduleExactReminder()
             return START_STICKY
         }
         
-        // 开始定时检查
-        handler.removeCallbacks(checkRunnable)
-        handler.post(checkRunnable)
+        // 安排精确提醒
+        scheduleExactReminder()
         
         return START_STICKY // 服务被杀死后自动重启
+    }
+    
+    /**
+     * 安排精确时间点的提醒
+     */
+    private fun scheduleExactReminder() {
+        // 移除之前的定时任务
+        reminderRunnable?.let { handler.removeCallbacks(it) }
+        
+        if (!dataStore.isReminderEnabledSync()) {
+            Log.d(TAG, "Reminder disabled")
+            return
+        }
+        
+        // 如果今天已打卡，安排明天的提醒
+        if (dataStore.isCheckedInToday()) {
+            Log.d(TAG, "Already checked in today, scheduling for tomorrow")
+            scheduleTomorrowReminder()
+            return
+        }
+        
+        val (targetHour, targetMinute) = dataStore.getReminderTimeSync()
+        val now = Calendar.getInstance()
+        val target = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, targetHour)
+            set(Calendar.MINUTE, targetMinute)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        
+        val delayMs = target.timeInMillis - now.timeInMillis
+        
+        when {
+            delayMs > 0 -> {
+                // 还没到提醒时间，安排精确定时
+                Log.d(TAG, "Scheduling reminder in ${delayMs}ms (${delayMs/1000}s)")
+                reminderRunnable = Runnable {
+                    triggerReminder()
+                }
+                handler.postDelayed(reminderRunnable!!, delayMs)
+            }
+            else -> {
+                // 已过提醒时间，检查是否需要立即提醒
+                checkAndNotifyIfNeeded()
+                // 安排明天的提醒
+                scheduleTomorrowReminder()
+            }
+        }
+    }
+    
+    /**
+     * 安排明天的提醒
+     */
+    private fun scheduleTomorrowReminder() {
+        val (targetHour, targetMinute) = dataStore.getReminderTimeSync()
+        val now = Calendar.getInstance()
+        val tomorrow = Calendar.getInstance().apply {
+            add(Calendar.DAY_OF_YEAR, 1)
+            set(Calendar.HOUR_OF_DAY, targetHour)
+            set(Calendar.MINUTE, targetMinute)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        
+        val delayMs = tomorrow.timeInMillis - now.timeInMillis
+        Log.d(TAG, "Scheduling tomorrow's reminder in ${delayMs/1000/60} minutes")
+        
+        reminderRunnable = Runnable {
+            triggerReminder()
+        }
+        handler.postDelayed(reminderRunnable!!, delayMs)
+    }
+    
+    /**
+     * 触发提醒（精确时间点到达时调用）
+     */
+    private fun triggerReminder() {
+        Log.d(TAG, "Trigger reminder NOW!")
+        
+        if (!dataStore.isReminderEnabledSync()) return
+        
+        if (!dataStore.isCheckedInToday()) {
+            // 发送通知
+            NotificationHelper.showNotification(this)
+            
+            // 记录已通知
+            val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
+            prefs.edit()
+                .putBoolean(KEY_NOTIFIED_TODAY, true)
+                .putInt(KEY_LAST_NOTIFIED_DATE, today)
+                .apply()
+        }
+        
+        // 安排明天的提醒
+        scheduleTomorrowReminder()
+    }
+    
+    /**
+     * 检查是否需要补发通知（服务重启时使用）
+     */
+    private fun checkAndNotifyIfNeeded() {
+        val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
+        val lastNotifiedDate = prefs.getInt(KEY_LAST_NOTIFIED_DATE, -1)
+        val notifiedToday = prefs.getBoolean(KEY_NOTIFIED_TODAY, false) && lastNotifiedDate == today
+        
+        if (!notifiedToday && !dataStore.isCheckedInToday()) {
+            Log.d(TAG, "Missed reminder, sending now")
+            NotificationHelper.showNotification(this)
+            prefs.edit()
+                .putBoolean(KEY_NOTIFIED_TODAY, true)
+                .putInt(KEY_LAST_NOTIFIED_DATE, today)
+                .apply()
+        }
     }
     
     override fun onBind(intent: Intent?): IBinder? = null
@@ -136,7 +245,7 @@ class ReminderService : Service() {
     override fun onDestroy() {
         Log.d(TAG, "Service onDestroy")
         super.onDestroy()
-        handler.removeCallbacks(checkRunnable)
+        reminderRunnable?.let { handler.removeCallbacks(it) }
         releaseWakeLock()
     }
     
@@ -187,58 +296,6 @@ class ReminderService : Service() {
         }
     }
     
-    /**
-     * 检查是否需要发送提醒通知
-     */
-    private fun checkAndNotify() {
-        try {
-            if (!dataStore.isReminderEnabledSync()) {
-                Log.d(TAG, "Reminder disabled")
-                return
-            }
-            
-            // 检查今天是否已经打卡
-            if (dataStore.isCheckedInToday()) {
-                Log.d(TAG, "Already checked in today")
-                resetNotifiedToday()
-                return
-            }
-            
-            val (targetHour, targetMinute) = dataStore.getReminderTimeSync()
-            val calendar = Calendar.getInstance()
-            val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
-            val currentMinute = calendar.get(Calendar.MINUTE)
-            val today = calendar.get(Calendar.DAY_OF_YEAR)
-            
-            // 检查今天是否已经发送过通知
-            val lastNotifiedDate = prefs.getInt(KEY_LAST_NOTIFIED_DATE, -1)
-            val notifiedToday = prefs.getBoolean(KEY_NOTIFIED_TODAY, false) && lastNotifiedDate == today
-            
-            Log.d(TAG, "Check: current=$currentHour:$currentMinute, target=$targetHour:$targetMinute, notifiedToday=$notifiedToday")
-            
-            // 判断是否已过提醒时间
-            val isPastReminderTime = currentHour > targetHour || 
-                (currentHour == targetHour && currentMinute >= targetMinute)
-            
-            // 如果已过提醒时间且今天还没发送过通知
-            if (isPastReminderTime && !notifiedToday) {
-                Log.d(TAG, "Sending notification!")
-                NotificationHelper.showNotification(this)
-                
-                // 记录已发送通知
-                prefs.edit()
-                    .putBoolean(KEY_NOTIFIED_TODAY, true)
-                    .putInt(KEY_LAST_NOTIFIED_DATE, today)
-                    .apply()
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error in checkAndNotify", e)
-        }
-    }
-    
-    private fun resetNotifiedToday() {
-        prefs.edit().putBoolean(KEY_NOTIFIED_TODAY, false).apply()
-    }
     
     /**
      * 创建服务通知渠道
