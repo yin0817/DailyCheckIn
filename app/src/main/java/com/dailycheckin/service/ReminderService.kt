@@ -30,6 +30,7 @@ class ReminderService : Service() {
     companion object {
         const val SERVICE_CHANNEL_ID = "reminder_service_channel"
         const val SERVICE_NOTIFICATION_ID = 1002
+        const val ACTION_REFRESH = "com.dailycheckin.ACTION_REFRESH_NOTIFICATION"
         private const val CHECK_INTERVAL = 30 * 1000L // 每30秒检查一次
         private const val TAG = "ReminderService"
         private const val PREFS_NAME = "reminder_service_prefs"
@@ -57,6 +58,25 @@ class ReminderService : Service() {
                 Log.d(TAG, "Service stop requested")
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to stop service", e)
+            }
+        }
+        
+        /**
+         * 立即刷新通知（打卡或设置后调用）
+         */
+        fun refresh(context: Context) {
+            try {
+                val intent = Intent(context, ReminderService::class.java).apply {
+                    action = ACTION_REFRESH
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.startForegroundService(intent)
+                } else {
+                    context.startService(intent)
+                }
+                Log.d(TAG, "Service refresh requested")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to refresh service", e)
             }
         }
         
@@ -93,9 +113,16 @@ class ReminderService : Service() {
     }
     
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "Service onStartCommand")
+        Log.d(TAG, "Service onStartCommand, action=${intent?.action}")
+        
         // 启动前台服务
         startForeground(SERVICE_NOTIFICATION_ID, createServiceNotification())
+        
+        // 处理刷新请求
+        if (intent?.action == ACTION_REFRESH) {
+            updateServiceNotification()
+            return START_STICKY
+        }
         
         // 开始定时检查
         handler.removeCallbacks(checkRunnable)

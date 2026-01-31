@@ -89,6 +89,7 @@ fun SettingsScreen(
                             dataStore.setReminderEnabled(enabled)
                             if (enabled) {
                                 NotificationHelper.scheduleDailyReminder(context)
+                                ReminderService.refresh(context)
                             } else {
                                 NotificationHelper.cancelReminder(context)
                             }
@@ -112,6 +113,7 @@ fun SettingsScreen(
                                         scope.launch {
                                             dataStore.setReminderTime(hour, minute)
                                             NotificationHelper.scheduleDailyReminder(context)
+                                            ReminderService.refresh(context)
                                         }
                                     },
                                     reminderHour,
