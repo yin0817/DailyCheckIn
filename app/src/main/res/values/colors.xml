@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 主色调 - 清新的绿色 -->
+    <color name="primary">#4CAF50</color>
+    <color name="primary_dark">#388E3C</color>
+    <color name="primary_light">#C8E6C9</color>
+    <color name="accent">#8BC34A</color>
+    
+    <!-- 文字颜色 -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#BDBDBD</color>
+    <color name="text_white">#FFFFFF</color>
+    
+    <!-- 背景颜色 -->
+    <color name="background_light">#FAFAFA</color>
+    <color name="background_dark">#121212</color>
+    <color name="surface_light">#FFFFFF</color>
+    <color name="surface_dark">#1E1E1E</color>
+    
+    <!-- 状态颜色 -->
+    <color name="checked_in">#4CAF50</color>
+    <color name="not_checked_in">#E0E0E0</color>
+    <color name="disabled">#BDBDBD</color>
+    
+    <!-- 分隔线 -->
+    <color name="divider">#E0E0E0</color>
+    <color name="divider_dark">#424242</color>
+</resources>

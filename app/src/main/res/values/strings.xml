@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">每日打卡</string>
+    
+    <!-- 主界面 -->
+    <string name="check_in_today">点击打卡</string>
+    <string name="checked_in_today">今日已打卡</string>
+    <string name="consecutive_days">连续打卡 %d 天</string>
+    <string name="first_check_in">开启你的第一天</string>
+    <string name="calendar">打卡日历</string>
+    <string name="settings">设置</string>
+    
+    <!-- 日历 -->
+    <string name="calendar_title">打卡日历</string>
+    <string name="mon">一</string>
+    <string name="tue">二</string>
+    <string name="wed">三</string>
+    <string name="thu">四</string>
+    <string name="fri">五</string>
+    <string name="sat">六</string>
+    <string name="sun">日</string>
+    
+    <!-- 设置 -->
+    <string name="settings_title">设置</string>
+    <string name="daily_reminder">每日提醒</string>
+    <string name="reminder_time">提醒时间</string>
+    <string name="default_reminder_time">20:00</string>
+    <string name="theme">主题</string>
+    <string name="theme_light">浅色</string>
+    <string name="theme_dark">深色</string>
+    <string name="theme_system">跟随系统</string>
+    <string name="clear_data">清除所有数据</string>
+    <string name="clear_data_confirm">确定要清除所有打卡记录吗？此操作不可恢复。</string>
+    <string name="cancel">取消</string>
+    <string name="confirm">确定</string>
+    <string name="data_cleared">数据已清除</string>
+    
+    <!-- 电池优化 -->
+    <string name="battery_optimization_title">电池优化</string>
+    <string name="battery_optimization_message">为了确保每日提醒能正常工作，建议关闭电池优化并允许自启动。</string>
+    <string name="go_to_settings">去设置</string>
+    <string name="later">稍后</string>
+    
+    <!-- 通知 -->
+    <string name="notification_channel_name">每日打卡提醒</string>
+    <string name="notification_channel_description">每日打卡提醒通知</string>
+    <string name="notification_title">别忘了今日打卡</string>
+    <string name="notification_content">点击打开应用完成今日打卡</string>
+    <string name="notification_check_in">打卡</string>
+    
+    <!-- 关于 -->
+    <string name="about">关于</string>
+    <string name="version">版本 %s</string>
+    <string name="privacy_note">所有数据仅存储在本地设备，永不上传</string>
+</resources>
