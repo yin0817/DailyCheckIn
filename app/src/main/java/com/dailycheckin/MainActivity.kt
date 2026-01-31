@@ -67,19 +67,23 @@ class MainActivity : ComponentActivity() {
             }
         }
         
-        // 检查是否是首次启动
+        // 检查是否是首次启动，并设置提醒
         lifecycleScope.launch {
             val isFirst = dataStore.isFirstLaunch.first()
             if (isFirst) {
                 dataStore.setFirstLaunchComplete()
+                // 首次启动默认开启增强提醒
+                dataStore.setEnhancedReminder(true)
             }
+            
             // 每次启动都重新设置提醒（因为闹钟可能被系统清除）
             if (dataStore.isReminderEnabledSync()) {
                 NotificationHelper.scheduleDailyReminder(this@MainActivity)
-                // 如果开启了增强提醒模式，启动前台服务
-                if (dataStore.isEnhancedReminderEnabledSync()) {
-                    ReminderService.start(this@MainActivity)
-                }
+            }
+            
+            // 启动前台服务确保提醒可靠（默认开启）
+            if (dataStore.isEnhancedReminderEnabledSync()) {
+                ReminderService.start(this@MainActivity)
             }
         }
         
@@ -107,10 +111,17 @@ class MainActivity : ComponentActivity() {
             themeMode = dataStore.themeMode.first()
         }
         
-        // 每次恢复时检查并重新设置提醒（用户可能刚授予了精确闹钟权限）
+        // 每次恢复时检查并重新设置提醒
         lifecycleScope.launch {
             if (dataStore.isReminderEnabledSync()) {
                 NotificationHelper.scheduleDailyReminder(this@MainActivity)
+            }
+            
+            // 确保前台服务运行
+            if (dataStore.isEnhancedReminderEnabledSync()) {
+                if (!ReminderService.isRunning(this@MainActivity)) {
+                    ReminderService.start(this@MainActivity)
+                }
             }
         }
     }

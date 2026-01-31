@@ -174,9 +174,9 @@ class CheckInDataStore(private val context: Context) {
         }
     }
     
-    // 增强提醒模式
+    // 增强提醒模式（默认开启，确保通知可靠）
     val enhancedReminder: Flow<Boolean> = context.dataStore.data.map { prefs ->
-        prefs[ENHANCED_REMINDER] ?: false
+        prefs[ENHANCED_REMINDER] ?: true  // 默认开启
     }
     
     fun isEnhancedReminderEnabledSync(): Boolean = runBlocking {
