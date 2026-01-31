@@ -5,51 +5,12 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
     
-    <!-- 渐变定义 -->
-    <group>
-        <!-- 外圆 - 渐变背景效果 -->
-        <path
-            android:fillColor="#FFFFFF"
-            android:pathData="M54,24 C70.569,24 84,37.431 84,54 C84,70.569 70.569,84 54,84 C37.431,84 24,70.569 24,54 C24,37.431 37.431,24 54,24 Z"/>
-        
-        <!-- 内部圆形背景 -->
-        <path
-            android:fillColor="#E0E7FF"
-            android:pathData="M54,28 C68.359,28 80,39.641 80,54 C80,68.359 68.359,80 54,80 C39.641,80 28,68.359 28,54 C28,39.641 39.641,28 54,28 Z"/>
-        
-        <!-- 打卡勾选图标 -->
-        <path
-            android:fillColor="#6366F1"
-            android:pathData="M54,32 C65.046,32 74,40.954 74,52 C74,63.046 65.046,72 54,72 C42.954,72 34,63.046 34,52 C34,40.954 42.954,32 54,32 Z"/>
-        
-        <!-- 勾号 -->
-        <path
-            android:fillColor="#FFFFFF"
-            android:strokeWidth="0"
-            android:pathData="M48.5,52.5 L52,56 L60,48"
-            android:strokeColor="#FFFFFF"
-            android:strokeLineCap="round"
-            android:strokeLineJoin="round"/>
-            
-        <path
-            android:fillColor="#FFFFFF"
-            android:pathData="M60.7,46.3 C61.5,45.5 62.8,45.5 63.5,46.3 C64.3,47.1 64.3,48.4 63.5,49.1 L52.7,59.9 C52.3,60.3 51.8,60.5 51.2,60.5 C50.7,60.5 50.1,60.3 49.7,59.9 L44.5,54.7 C43.7,53.9 43.7,52.6 44.5,51.9 C45.3,51.1 46.6,51.1 47.3,51.9 L51.2,55.8 Z"/>
-        
-        <!-- 装饰点 - 右上 -->
-        <path
-            android:fillColor="#8B5CF6"
-            android:pathData="M70,36 C71.657,36 73,37.343 73,39 C73,40.657 71.657,42 70,42 C68.343,42 67,40.657 67,39 C67,37.343 68.343,36 70,36 Z"/>
-        
-        <!-- 装饰点 - 左下 -->
-        <path
-            android:fillColor="#06B6D4"
-            android:pathData="M38,66 C39.657,66 41,67.343 41,69 C41,70.657 39.657,72 38,72 C36.343,72 35,70.657 35,69 C35,67.343 36.343,66 38,66 Z"/>
-            
-        <!-- 小星星装饰 -->
-        <path
-            android:fillColor="#F59E0B"
-            android:pathData="M73,54 L74.5,57 L78,57.5 L75.5,60 L76,63.5 L73,62 L70,63.5 L70.5,60 L68,57.5 L71.5,57 Z"
-            android:scaleX="0.6"
-            android:scaleY="0.6"/>
-    </group>
+    <!-- 简单的对勾图标 -->
+    <path
+        android:pathData="M34,54 L48,68 L74,40"
+        android:strokeWidth="6"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000"/>
 </vector>

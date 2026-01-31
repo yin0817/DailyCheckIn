@@ -1,93 +1,77 @@
 package com.dailycheckin.ui.theme
 
 import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-// 品牌色 - 紫蓝渐变风格
+// 蓝色主题色
 object AppColors {
-    val Purple500 = Color(0xFF6366F1)      // 主紫色
-    val Purple400 = Color(0xFF818CF8)      // 浅紫色
-    val Purple600 = Color(0xFF4F46E5)      // 深紫色
-    val Indigo400 = Color(0xFF6366F1)      // 靛蓝
-    val Pink500 = Color(0xFFEC4899)        // 粉色
-    val Cyan400 = Color(0xFF22D3EE)        // 青色
-    val Amber500 = Color(0xFFF59E0B)       // 琥珀色
-    val Emerald500 = Color(0xFF10B981)     // 翠绿色
+    val Blue600 = Color(0xFF2563EB)       // 主蓝色
+    val Blue500 = Color(0xFF3B82F6)       // 亮蓝色
+    val Blue400 = Color(0xFF60A5FA)       // 浅蓝色
+    val Blue700 = Color(0xFF1D4ED8)       // 深蓝色
+    val Green500 = Color(0xFF22C55E)      // 成功绿
+    val Gray500 = Color(0xFF6B7280)       // 灰色
 }
 
-// 浅色主题 - 简约白底紫色调
+// 浅色主题
 private val LightColors = lightColorScheme(
-    primary = Color(0xFF6366F1),                // 紫色主色
+    primary = Color(0xFF2563EB),
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFE0E7FF),       // 浅紫色容器
-    onPrimaryContainer = Color(0xFF3730A3),
-    secondary = Color(0xFF8B5CF6),              // 紫罗兰
+    primaryContainer = Color(0xFFDBEAFE),
+    onPrimaryContainer = Color(0xFF1E40AF),
+    secondary = Color(0xFF3B82F6),
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFFEDE9FE),
-    onSecondaryContainer = Color(0xFF5B21B6),
-    tertiary = Color(0xFF06B6D4),               // 青色
+    secondaryContainer = Color(0xFFE0F2FE),
+    onSecondaryContainer = Color(0xFF1D4ED8),
+    tertiary = Color(0xFF22C55E),
     onTertiary = Color.White,
-    tertiaryContainer = Color(0xFFCFFAFE),
-    onTertiaryContainer = Color(0xFF0E7490),
+    tertiaryContainer = Color(0xFFDCFCE7),
+    onTertiaryContainer = Color(0xFF166534),
     error = Color(0xFFEF4444),
     errorContainer = Color(0xFFFEE2E2),
     onError = Color.White,
     onErrorContainer = Color(0xFFB91C1C),
-    background = Color(0xFFFAFAFC),             // 微灰白背景
-    onBackground = Color(0xFF18181B),
+    background = Color(0xFFF8FAFC),
+    onBackground = Color(0xFF1E293B),
     surface = Color.White,
-    onSurface = Color(0xFF18181B),
-    surfaceVariant = Color(0xFFF4F4F5),         // 浅灰
-    onSurfaceVariant = Color(0xFF52525B),
-    outline = Color(0xFFE4E4E7),
-    inverseOnSurface = Color(0xFFF4F4F5),
-    inverseSurface = Color(0xFF27272A),
-    inversePrimary = Color(0xFFA5B4FC),
-    surfaceTint = Color(0xFF6366F1),
-    outlineVariant = Color(0xFFE4E4E7),
-    scrim = Color.Black
+    onSurface = Color(0xFF1E293B),
+    surfaceVariant = Color(0xFFF1F5F9),
+    onSurfaceVariant = Color(0xFF64748B),
+    outline = Color(0xFFE2E8F0)
 )
 
-// 深色主题 - 深邃紫黑
+// 深色主题
 private val DarkColors = darkColorScheme(
-    primary = Color(0xFFA5B4FC),                // 浅紫主色
-    onPrimary = Color(0xFF312E81),
-    primaryContainer = Color(0xFF4338CA),
-    onPrimaryContainer = Color(0xFFE0E7FF),
-    secondary = Color(0xFFC4B5FD),              // 浅紫罗兰
-    onSecondary = Color(0xFF4C1D95),
-    secondaryContainer = Color(0xFF6D28D9),
-    onSecondaryContainer = Color(0xFFEDE9FE),
-    tertiary = Color(0xFF67E8F9),               // 亮青色
-    onTertiary = Color(0xFF164E63),
-    tertiaryContainer = Color(0xFF0891B2),
-    onTertiaryContainer = Color(0xFFCFFAFE),
+    primary = Color(0xFF60A5FA),
+    onPrimary = Color(0xFF1E3A5F),
+    primaryContainer = Color(0xFF1E40AF),
+    onPrimaryContainer = Color(0xFFDBEAFE),
+    secondary = Color(0xFF93C5FD),
+    onSecondary = Color(0xFF1E3A5F),
+    secondaryContainer = Color(0xFF1D4ED8),
+    onSecondaryContainer = Color(0xFFE0F2FE),
+    tertiary = Color(0xFF4ADE80),
+    onTertiary = Color(0xFF14532D),
+    tertiaryContainer = Color(0xFF166534),
+    onTertiaryContainer = Color(0xFFDCFCE7),
     error = Color(0xFFFCA5A5),
     errorContainer = Color(0xFF991B1B),
     onError = Color(0xFF7F1D1D),
     onErrorContainer = Color(0xFFFEE2E2),
-    background = Color(0xFF0F0F1A),             // 深紫黑背景
-    onBackground = Color(0xFFF4F4F5),
-    surface = Color(0xFF18181F),                // 深色表面
-    onSurface = Color(0xFFF4F4F5),
-    surfaceVariant = Color(0xFF27272F),         // 深灰紫
-    onSurfaceVariant = Color(0xFFA1A1AA),
-    outline = Color(0xFF3F3F46),
-    inverseOnSurface = Color(0xFF18181B),
-    inverseSurface = Color(0xFFF4F4F5),
-    inversePrimary = Color(0xFF6366F1),
-    surfaceTint = Color(0xFFA5B4FC),
-    outlineVariant = Color(0xFF3F3F46),
-    scrim = Color.Black
+    background = Color(0xFF0F172A),
+    onBackground = Color(0xFFF1F5F9),
+    surface = Color(0xFF1E293B),
+    onSurface = Color(0xFFF1F5F9),
+    surfaceVariant = Color(0xFF334155),
+    onSurfaceVariant = Color(0xFF94A3B8),
+    outline = Color(0xFF475569)
 )
 
 @Composable
@@ -107,7 +91,6 @@ fun DailyCheckInTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            // 透明状态栏
             window.statusBarColor = Color.Transparent.toArgb()
             WindowCompat.setDecorFitsSystemWindows(window, false)
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme

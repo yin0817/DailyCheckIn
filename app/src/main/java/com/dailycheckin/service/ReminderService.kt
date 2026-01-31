@@ -251,28 +251,21 @@ class ReminderService : Service() {
         val (hour, minute) = dataStore.getReminderTimeSync()
         val timeStr = String.format("%02d:%02d", hour, minute)
         
-        // 标题和内容
-        val title = if (consecutiveDays > 0) {
-            "🔥 已连续 $consecutiveDays 天"
+        // 简洁显示：连续天数 · 提醒时间
+        val text = if (consecutiveDays > 0) {
+            "连续 $consecutiveDays 天 · $timeStr 提醒"
         } else {
-            getString(R.string.service_notification_title)
+            "$timeStr 提醒"
         }
-        
-        val contentText = "每日 $timeStr 提醒打卡"
         
         return NotificationCompat.Builder(this, SERVICE_CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_menu_my_calendar)
-            .setContentTitle(title)
-            .setContentText(contentText)
-            .setSubText("点击打开应用")
+            .setContentTitle(text)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)
             .setSilent(true)
             .setShowWhen(false)
             .setContentIntent(pendingIntent)
-            .setStyle(NotificationCompat.BigTextStyle()
-                .setBigContentTitle(title)
-                .bigText(contentText))
             .build()
     }
     
