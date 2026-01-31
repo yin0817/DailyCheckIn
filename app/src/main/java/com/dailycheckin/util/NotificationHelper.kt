@@ -125,6 +125,18 @@ object NotificationHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         
+        // 全屏Intent（锁屏时弹出）
+        val fullScreenIntent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra("from_notification", true)
+        }
+        val fullScreenPendingIntent = PendingIntent.getActivity(
+            context,
+            2,
+            fullScreenIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        
         // 通知标题和内容
         val title = "打卡提醒"
         val content = if (consecutiveDays > 0) {
@@ -144,6 +156,8 @@ object NotificationHelper {
             // 使用系统默认声音和震动设置
             .setDefaults(androidx.core.app.NotificationCompat.DEFAULT_ALL)
             .setVisibility(androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC)
+            // 锁屏时弹出全屏界面
+            .setFullScreenIntent(fullScreenPendingIntent, true)
             // 添加快速打卡按钮
             .addAction(
                 android.R.drawable.ic_menu_save,
