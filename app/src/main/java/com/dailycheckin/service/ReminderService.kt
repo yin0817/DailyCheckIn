@@ -221,12 +221,13 @@ class ReminderService : Service() {
             val channel = NotificationChannel(
                 SERVICE_CHANNEL_ID,
                 getString(R.string.service_channel_name),
-                NotificationManager.IMPORTANCE_MIN // 最低优先级，不发出声音，最小化显示
+                NotificationManager.IMPORTANCE_LOW // 低优先级，显示完整内容但不发声
             ).apply {
                 description = getString(R.string.service_channel_description)
                 setShowBadge(false)
                 enableLights(false)
                 enableVibration(false)
+                setSound(null, null)
             }
             
             val notificationManager = getSystemService(NotificationManager::class.java)
@@ -250,20 +251,28 @@ class ReminderService : Service() {
         val (hour, minute) = dataStore.getReminderTimeSync()
         val timeStr = String.format("%02d:%02d", hour, minute)
         
-        val contentText = if (consecutiveDays > 0) {
-            "🔥 已连续 $consecutiveDays 天 · 提醒时间 $timeStr"
+        // 标题和内容
+        val title = if (consecutiveDays > 0) {
+            "🔥 已连续 $consecutiveDays 天"
         } else {
-            "提醒时间 $timeStr"
+            getString(R.string.service_notification_title)
         }
+        
+        val contentText = "每日 $timeStr 提醒打卡"
         
         return NotificationCompat.Builder(this, SERVICE_CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_menu_my_calendar)
-            .setContentTitle(getString(R.string.service_notification_title))
+            .setContentTitle(title)
             .setContentText(contentText)
-            .setPriority(NotificationCompat.PRIORITY_MIN)
+            .setSubText("点击打开应用")
+            .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)
             .setSilent(true)
+            .setShowWhen(false)
             .setContentIntent(pendingIntent)
+            .setStyle(NotificationCompat.BigTextStyle()
+                .setBigContentTitle(title)
+                .bigText(contentText))
             .build()
     }
     
