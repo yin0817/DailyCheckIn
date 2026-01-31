@@ -11,69 +11,69 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-// 浅色主题颜色
+// 浅色主题颜色 - 现代清新风格
 private val LightColors = lightColorScheme(
-    primary = androidx.compose.ui.graphics.Color(0xFF4CAF50),
+    primary = androidx.compose.ui.graphics.Color(0xFF2E7D32),           // 深绿色主色
     onPrimary = androidx.compose.ui.graphics.Color.White,
-    primaryContainer = androidx.compose.ui.graphics.Color(0xFFC8E6C9),
+    primaryContainer = androidx.compose.ui.graphics.Color(0xFFB9F6CA),  // 浅薄荷绿
     onPrimaryContainer = androidx.compose.ui.graphics.Color(0xFF1B5E20),
-    secondary = androidx.compose.ui.graphics.Color(0xFF8BC34A),
+    secondary = androidx.compose.ui.graphics.Color(0xFF43A047),         // 中绿色
     onSecondary = androidx.compose.ui.graphics.Color.White,
-    secondaryContainer = androidx.compose.ui.graphics.Color(0xFFDCEDC8),
-    onSecondaryContainer = androidx.compose.ui.graphics.Color(0xFF33691E),
-    tertiary = androidx.compose.ui.graphics.Color(0xFF009688),
+    secondaryContainer = androidx.compose.ui.graphics.Color(0xFFC8E6C9),
+    onSecondaryContainer = androidx.compose.ui.graphics.Color(0xFF1B5E20),
+    tertiary = androidx.compose.ui.graphics.Color(0xFF00897B),          // 青色
     onTertiary = androidx.compose.ui.graphics.Color.White,
-    tertiaryContainer = androidx.compose.ui.graphics.Color(0xFFB2DFDB),
+    tertiaryContainer = androidx.compose.ui.graphics.Color(0xFFA7FFEB),
     onTertiaryContainer = androidx.compose.ui.graphics.Color(0xFF004D40),
-    error = androidx.compose.ui.graphics.Color(0xFFB00020),
-    errorContainer = androidx.compose.ui.graphics.Color(0xFFFFDAD6),
+    error = androidx.compose.ui.graphics.Color(0xFFD32F2F),
+    errorContainer = androidx.compose.ui.graphics.Color(0xFFFFCDD2),
     onError = androidx.compose.ui.graphics.Color.White,
-    onErrorContainer = androidx.compose.ui.graphics.Color(0xFF410002),
-    background = androidx.compose.ui.graphics.Color(0xFFFAFAFA),
-    onBackground = androidx.compose.ui.graphics.Color(0xFF212121),
+    onErrorContainer = androidx.compose.ui.graphics.Color(0xFFB71C1C),
+    background = androidx.compose.ui.graphics.Color(0xFFF8FBF8),        // 微绿白色背景
+    onBackground = androidx.compose.ui.graphics.Color(0xFF1C1B1F),
     surface = androidx.compose.ui.graphics.Color.White,
-    onSurface = androidx.compose.ui.graphics.Color(0xFF212121),
-    surfaceVariant = androidx.compose.ui.graphics.Color(0xFFE0E0E0),
-    onSurfaceVariant = androidx.compose.ui.graphics.Color(0xFF757575),
-    outline = androidx.compose.ui.graphics.Color(0xFFBDBDBD),
-    inverseOnSurface = androidx.compose.ui.graphics.Color(0xFFFAFAFA),
-    inverseSurface = androidx.compose.ui.graphics.Color(0xFF303030),
-    inversePrimary = androidx.compose.ui.graphics.Color(0xFFA5D6A7),
-    surfaceTint = androidx.compose.ui.graphics.Color(0xFF4CAF50),
+    onSurface = androidx.compose.ui.graphics.Color(0xFF1C1B1F),
+    surfaceVariant = androidx.compose.ui.graphics.Color(0xFFE8F5E9),    // 浅绿色变体
+    onSurfaceVariant = androidx.compose.ui.graphics.Color(0xFF49454F),
+    outline = androidx.compose.ui.graphics.Color(0xFFC8E6C9),
+    inverseOnSurface = androidx.compose.ui.graphics.Color(0xFFF4F4F4),
+    inverseSurface = androidx.compose.ui.graphics.Color(0xFF313131),
+    inversePrimary = androidx.compose.ui.graphics.Color(0xFF69F0AE),
+    surfaceTint = androidx.compose.ui.graphics.Color(0xFF2E7D32),
     outlineVariant = androidx.compose.ui.graphics.Color(0xFFE0E0E0),
     scrim = androidx.compose.ui.graphics.Color.Black
 )
 
-// 深色主题颜色
+// 深色主题颜色 - 护眼深色风格
 private val DarkColors = darkColorScheme(
-    primary = androidx.compose.ui.graphics.Color(0xFF81C784),
-    onPrimary = androidx.compose.ui.graphics.Color(0xFF1B5E20),
-    primaryContainer = androidx.compose.ui.graphics.Color(0xFF2E7D32),
-    onPrimaryContainer = androidx.compose.ui.graphics.Color(0xFFC8E6C9),
-    secondary = androidx.compose.ui.graphics.Color(0xFFAED581),
-    onSecondary = androidx.compose.ui.graphics.Color(0xFF33691E),
-    secondaryContainer = androidx.compose.ui.graphics.Color(0xFF558B2F),
-    onSecondaryContainer = androidx.compose.ui.graphics.Color(0xFFDCEDC8),
-    tertiary = androidx.compose.ui.graphics.Color(0xFF80CBC4),
-    onTertiary = androidx.compose.ui.graphics.Color(0xFF004D40),
+    primary = androidx.compose.ui.graphics.Color(0xFF69F0AE),           // 亮绿色主色
+    onPrimary = androidx.compose.ui.graphics.Color(0xFF003300),
+    primaryContainer = androidx.compose.ui.graphics.Color(0xFF1B5E20),
+    onPrimaryContainer = androidx.compose.ui.graphics.Color(0xFFB9F6CA),
+    secondary = androidx.compose.ui.graphics.Color(0xFFA5D6A7),
+    onSecondary = androidx.compose.ui.graphics.Color(0xFF1B5E20),
+    secondaryContainer = androidx.compose.ui.graphics.Color(0xFF2E7D32),
+    onSecondaryContainer = androidx.compose.ui.graphics.Color(0xFFC8E6C9),
+    tertiary = androidx.compose.ui.graphics.Color(0xFF64FFDA),          // 青色
+    onTertiary = androidx.compose.ui.graphics.Color(0xFF003D33),
     tertiaryContainer = androidx.compose.ui.graphics.Color(0xFF00695C),
-    onTertiaryContainer = androidx.compose.ui.graphics.Color(0xFFB2DFDB),
-    error = androidx.compose.ui.graphics.Color(0xFFCF6679),
+    onTertiaryContainer = androidx.compose.ui.graphics.Color(0xFFA7FFEB),
+    error = androidx.compose.ui.graphics.Color(0xFFFF8A80),
     errorContainer = androidx.compose.ui.graphics.Color(0xFF93000A),
     onError = androidx.compose.ui.graphics.Color(0xFF690005),
-    onErrorContainer = androidx.compose.ui.graphics.Color(0xFFFFDAD6),
-    background = androidx.compose.ui.graphics.Color(0xFF121212),
-    onBackground = androidx.compose.ui.graphics.Color(0xFFE0E0E0),
-    surface = androidx.compose.ui.graphics.Color(0xFF1E1E1E),
-    onSurface = androidx.compose.ui.graphics.Color(0xFFE0E0E0),
-    surfaceVariant = androidx.compose.ui.graphics.Color(0xFF424242),
-    onSurfaceVariant = androidx.compose.ui.graphics.Color(0xFFBDBDBD),
-    outline = androidx.compose.ui.graphics.Color(0xFF616161),
-    inverseOnSurface = androidx.compose.ui.graphics.Color(0xFF303030),
-    inverseSurface = androidx.compose.ui.graphics.Color(0xFFE0E0E0),
-    inversePrimary = androidx.compose.ui.graphics.Color(0xFF4CAF50),
-    surfaceTint = androidx.compose.ui.graphics.Color(0xFF81C784),
-    outlineVariant = androidx.compose.ui.graphics.Color(0xFF424242),
+    onErrorContainer = androidx.compose.ui.graphics.Color(0xFFFFCDD2),
+    background = androidx.compose.ui.graphics.Color(0xFF0D1F12),        // 深绿黑色背景
+    onBackground = androidx.compose.ui.graphics.Color(0xFFE1E3DE),
+    surface = androidx.compose.ui.graphics.Color(0xFF121F17),           // 深绿色表面
+    onSurface = androidx.compose.ui.graphics.Color(0xFFE1E3DE),
+    surfaceVariant = androidx.compose.ui.graphics.Color(0xFF1E3A28),    // 深绿色变体
+    onSurfaceVariant = androidx.compose.ui.graphics.Color(0xFFC0C9BF),
+    outline = androidx.compose.ui.graphics.Color(0xFF3D5A47),
+    inverseOnSurface = androidx.compose.ui.graphics.Color(0xFF1C1B1F),
+    inverseSurface = androidx.compose.ui.graphics.Color(0xFFE1E3DE),
+    inversePrimary = androidx.compose.ui.graphics.Color(0xFF2E7D32),
+    surfaceTint = androidx.compose.ui.graphics.Color(0xFF69F0AE),
+    outlineVariant = androidx.compose.ui.graphics.Color(0xFF2E4A38),
     scrim = androidx.compose.ui.graphics.Color.Black
 )
 

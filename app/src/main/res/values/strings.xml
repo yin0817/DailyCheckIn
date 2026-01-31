@@ -44,9 +44,20 @@
     <!-- 通知 -->
     <string name="notification_channel_name">每日打卡提醒</string>
     <string name="notification_channel_description">每日打卡提醒通知</string>
-    <string name="notification_title">别忘了今日打卡</string>
+    <string name="notification_title">📌 别忘了今日打卡</string>
     <string name="notification_content">点击打开应用完成今日打卡</string>
-    <string name="notification_check_in">打卡</string>
+    <string name="notification_content_expanded">今天还没有打卡哦！坚持每天打卡，养成好习惯。点击通知或下方按钮快速完成打卡~</string>
+    <string name="notification_check_in">立即打卡</string>
+    
+    <!-- 增强提醒服务 -->
+    <string name="enhanced_reminder">增强提醒模式</string>
+    <string name="enhanced_reminder_subtitle_on">已开启，提醒更可靠</string>
+    <string name="enhanced_reminder_subtitle_off">关闭中</string>
+    <string name="enhanced_reminder_description">开启后会在状态栏显示一个小图标，确保提醒不受系统限制影响。类似于音乐播放时的常驻通知。</string>
+    <string name="service_channel_name">提醒服务</string>
+    <string name="service_channel_description">保持提醒服务运行</string>
+    <string name="service_notification_title">打卡提醒已开启</string>
+    <string name="service_notification_content">将在设定时间提醒您打卡</string>
     
     <!-- 关于 -->
     <string name="about">关于</string>

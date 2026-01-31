@@ -22,6 +22,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.dailycheckin.data.CheckInDataStore
+import com.dailycheckin.service.ReminderService
 import com.dailycheckin.ui.screens.*
 import com.dailycheckin.ui.theme.DailyCheckInTheme
 import com.dailycheckin.util.BatteryOptimizationHelper
@@ -75,6 +76,10 @@ class MainActivity : ComponentActivity() {
             // 每次启动都重新设置提醒（因为闹钟可能被系统清除）
             if (dataStore.isReminderEnabledSync()) {
                 NotificationHelper.scheduleDailyReminder(this@MainActivity)
+                // 如果开启了增强提醒模式，启动前台服务
+                if (dataStore.isEnhancedReminderEnabledSync()) {
+                    ReminderService.start(this@MainActivity)
+                }
             }
         }
         

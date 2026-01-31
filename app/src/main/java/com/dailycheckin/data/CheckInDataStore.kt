@@ -22,6 +22,7 @@ class CheckInDataStore(private val context: Context) {
         private val REMINDER_MINUTE = intPreferencesKey("reminder_minute")
         private val THEME_MODE = stringPreferencesKey("theme_mode")
         private val FIRST_LAUNCH = booleanPreferencesKey("first_launch")
+        private val ENHANCED_REMINDER = booleanPreferencesKey("enhanced_reminder")
         
         const val DEFAULT_HOUR = 20
         const val DEFAULT_MINUTE = 0
@@ -170,6 +171,21 @@ class CheckInDataStore(private val context: Context) {
     suspend fun setFirstLaunchComplete() {
         context.dataStore.edit { prefs ->
             prefs[FIRST_LAUNCH] = false
+        }
+    }
+    
+    // 增强提醒模式
+    val enhancedReminder: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[ENHANCED_REMINDER] ?: false
+    }
+    
+    fun isEnhancedReminderEnabledSync(): Boolean = runBlocking {
+        enhancedReminder.first()
+    }
+    
+    suspend fun setEnhancedReminder(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[ENHANCED_REMINDER] = enabled
         }
     }
     

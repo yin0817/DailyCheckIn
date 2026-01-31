@@ -112,6 +112,18 @@ object NotificationHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         
+        // 全屏Intent（用于锁屏时显示）
+        val fullScreenIntent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra("from_notification", true)
+        }
+        val fullScreenPendingIntent = PendingIntent.getActivity(
+            context,
+            2,
+            fullScreenIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        
         // 创建快速打卡的Intent
         val checkInIntent = Intent(context, NotificationClickReceiver::class.java).apply {
             action = ACTION_CHECK_IN
@@ -128,14 +140,31 @@ object NotificationHelper {
             .setSmallIcon(android.R.drawable.ic_menu_my_calendar)
             .setContentTitle(context.getString(R.string.notification_title))
             .setContentText(context.getString(R.string.notification_content))
-            .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
+            // 高优先级 - 会显示横幅通知（Heads-up）
+            .setPriority(androidx.core.app.NotificationCompat.PRIORITY_MAX)
             .setCategory(androidx.core.app.NotificationCompat.CATEGORY_REMINDER)
             .setContentIntent(contentPendingIntent)
             .setAutoCancel(true)
+            // 设置默认震动和声音（Android 8.0 以下有效，8.0+ 由通知渠道控制）
+            .setDefaults(androidx.core.app.NotificationCompat.DEFAULT_ALL)
+            // 震动模式
+            .setVibrate(longArrayOf(0, 500, 200, 500, 200, 500))
+            // 锁屏可见性
+            .setVisibility(androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC)
+            // 全屏Intent - 在锁屏时可以弹出
+            .setFullScreenIntent(fullScreenPendingIntent, true)
+            // 添加快速打卡按钮
             .addAction(
                 android.R.drawable.ic_menu_save,
                 context.getString(R.string.notification_check_in),
                 checkInPendingIntent
+            )
+            // 设置为持续通知，直到用户交互（不会自动消失）
+            .setOngoing(false)
+            // 添加大文本样式
+            .setStyle(
+                androidx.core.app.NotificationCompat.BigTextStyle()
+                    .bigText(context.getString(R.string.notification_content_expanded))
             )
             .build()
         

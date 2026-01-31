@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.dailycheckin.R
 import com.dailycheckin.data.CheckInDataStore
+import com.dailycheckin.service.ReminderService
 import com.dailycheckin.util.BatteryOptimizationHelper
 import com.dailycheckin.util.NotificationHelper
 import kotlinx.coroutines.launch
@@ -39,10 +40,12 @@ fun SettingsScreen(
     var reminderHour by remember { mutableStateOf(dataStore.getReminderTimeSync().first) }
     var reminderMinute by remember { mutableStateOf(dataStore.getReminderTimeSync().second) }
     var themeMode by remember { mutableStateOf(dataStore.getThemeModeSync()) }
+    var enhancedReminder by remember { mutableStateOf(dataStore.isEnhancedReminderEnabledSync()) }
     
     var showClearDataDialog by remember { mutableStateOf(false) }
     var showBatteryDialog by remember { mutableStateOf(false) }
     var showThemeDialog by remember { mutableStateOf(false) }
+    var showEnhancedReminderDialog by remember { mutableStateOf(false) }
     
     val scrollState = rememberScrollState()
     
@@ -95,27 +98,56 @@ fun SettingsScreen(
                 
                 // 提醒时间
                 AnimatedVisibility(visible = reminderEnabled) {
-                    SettingsItem(
-                        title = stringResource(R.string.reminder_time),
-                        subtitle = String.format("%02d:%02d", reminderHour, reminderMinute),
-                        icon = Icons.Default.Schedule,
-                        onClick = {
-                            TimePickerDialog(
-                                context,
-                                { _, hour, minute ->
-                                    reminderHour = hour
-                                    reminderMinute = minute
+                    Column {
+                        SettingsItem(
+                            title = stringResource(R.string.reminder_time),
+                            subtitle = String.format("%02d:%02d", reminderHour, reminderMinute),
+                            icon = Icons.Default.Schedule,
+                            onClick = {
+                                TimePickerDialog(
+                                    context,
+                                    { _, hour, minute ->
+                                        reminderHour = hour
+                                        reminderMinute = minute
+                                        scope.launch {
+                                            dataStore.setReminderTime(hour, minute)
+                                            NotificationHelper.scheduleDailyReminder(context)
+                                        }
+                                    },
+                                    reminderHour,
+                                    reminderMinute,
+                                    true
+                                ).show()
+                            }
+                        )
+                        
+                        // 增强提醒模式
+                        SettingsSwitchItem(
+                            title = stringResource(R.string.enhanced_reminder),
+                            subtitle = if (enhancedReminder) 
+                                stringResource(R.string.enhanced_reminder_subtitle_on) 
+                            else 
+                                stringResource(R.string.enhanced_reminder_subtitle_off),
+                            icon = Icons.Default.Shield,
+                            checked = enhancedReminder,
+                            onCheckedChange = { enabled ->
+                                if (enabled && !enhancedReminder) {
+                                    // 首次开启时显示说明对话框
+                                    showEnhancedReminderDialog = true
+                                } else {
+                                    enhancedReminder = enabled
                                     scope.launch {
-                                        dataStore.setReminderTime(hour, minute)
-                                        NotificationHelper.scheduleDailyReminder(context)
+                                        dataStore.setEnhancedReminder(enabled)
+                                        if (enabled) {
+                                            ReminderService.start(context)
+                                        } else {
+                                            ReminderService.stop(context)
+                                        }
                                     }
-                                },
-                                reminderHour,
-                                reminderMinute,
-                                true
-                            ).show()
-                        }
-                    )
+                                }
+                            }
+                        )
+                    }
                 }
             }
             
@@ -300,6 +332,34 @@ fun SettingsScreen(
             confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { showThemeDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+    
+    // 增强提醒模式说明对话框
+    if (showEnhancedReminderDialog) {
+        AlertDialog(
+            onDismissRequest = { showEnhancedReminderDialog = false },
+            title = { Text(stringResource(R.string.enhanced_reminder)) },
+            text = { Text(stringResource(R.string.enhanced_reminder_description)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        enhancedReminder = true
+                        scope.launch {
+                            dataStore.setEnhancedReminder(true)
+                            ReminderService.start(context)
+                        }
+                        showEnhancedReminderDialog = false
+                    }
+                ) {
+                    Text(stringResource(R.string.confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEnhancedReminderDialog = false }) {
                     Text(stringResource(R.string.cancel))
                 }
             }

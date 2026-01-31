@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.dailycheckin.data.CheckInDataStore
+import com.dailycheckin.service.ReminderService
 import com.dailycheckin.util.NotificationHelper
 
 class BootReceiver : BroadcastReceiver() {
@@ -15,6 +16,10 @@ class BootReceiver : BroadcastReceiver() {
             
             if (dataStore.isReminderEnabledSync()) {
                 NotificationHelper.scheduleDailyReminder(context)
+                // 如果开启了增强提醒模式，启动前台服务
+                if (dataStore.isEnhancedReminderEnabledSync()) {
+                    ReminderService.start(context)
+                }
             }
         }
     }
