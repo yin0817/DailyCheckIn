@@ -158,9 +158,8 @@ object NotificationHelper {
             .setFullScreenIntent(fullScreenPendingIntent, true)
             // 设置通知强调色（影响按钮文字颜色）
             .setColor(0xFF5B7FFF.toInt())
-            // 简洁的文字按钮
+            // 快速打卡按钮
             .addAction(0, "立即打卡", checkInPendingIntent)
-            .addAction(0, "稍后提醒", contentPendingIntent)
             .build()
         
         notificationManager.notify(NOTIFICATION_ID, notification)
