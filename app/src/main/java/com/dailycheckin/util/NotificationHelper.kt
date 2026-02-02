@@ -146,24 +146,19 @@ object NotificationHelper {
         }
         
         val notification = androidx.core.app.NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_menu_my_calendar)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(title)
             .setContentText(content)
             .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
             .setCategory(androidx.core.app.NotificationCompat.CATEGORY_REMINDER)
             .setContentIntent(contentPendingIntent)
             .setAutoCancel(true)
-            // 使用系统默认声音和震动设置
             .setDefaults(androidx.core.app.NotificationCompat.DEFAULT_ALL)
             .setVisibility(androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC)
-            // 锁屏时弹出全屏界面
             .setFullScreenIntent(fullScreenPendingIntent, true)
-            // 添加快速打卡按钮
-            .addAction(
-                android.R.drawable.ic_menu_save,
-                context.getString(R.string.notification_check_in),
-                checkInPendingIntent
-            )
+            // 简洁的文字按钮，无图标
+            .addAction(0, "立即打卡", checkInPendingIntent)
+            .addAction(0, "稍后提醒", contentPendingIntent)
             .build()
         
         notificationManager.notify(NOTIFICATION_ID, notification)
