@@ -156,7 +156,9 @@ object NotificationHelper {
             .setDefaults(androidx.core.app.NotificationCompat.DEFAULT_ALL)
             .setVisibility(androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC)
             .setFullScreenIntent(fullScreenPendingIntent, true)
-            // 简洁的文字按钮，无图标
+            // 设置通知强调色（影响按钮文字颜色）
+            .setColor(0xFF5B7FFF.toInt())
+            // 简洁的文字按钮
             .addAction(0, "立即打卡", checkInPendingIntent)
             .addAction(0, "稍后提醒", contentPendingIntent)
             .build()
