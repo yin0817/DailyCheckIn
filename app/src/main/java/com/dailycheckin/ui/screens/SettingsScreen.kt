@@ -1,32 +1,60 @@
 package com.dailycheckin.ui.screens
 
 import android.app.TimePickerDialog
-import android.content.Intent
-import android.net.Uri
-import android.provider.Settings
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.dailycheckin.R
 import com.dailycheckin.data.CheckInDataStore
 import com.dailycheckin.service.ReminderService
 import com.dailycheckin.util.BatteryOptimizationHelper
 import com.dailycheckin.util.NotificationHelper
 import kotlinx.coroutines.launch
-import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     dataStore: CheckInDataStore,
@@ -35,53 +63,56 @@ fun SettingsScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    
+    val lifecycleOwner = LocalLifecycleOwner.current
+
     var reminderEnabled by remember { mutableStateOf(dataStore.isReminderEnabledSync()) }
     var reminderHour by remember { mutableStateOf(dataStore.getReminderTimeSync().first) }
     var reminderMinute by remember { mutableStateOf(dataStore.getReminderTimeSync().second) }
     var themeMode by remember { mutableStateOf(dataStore.getThemeModeSync()) }
     var enhancedReminder by remember { mutableStateOf(dataStore.isEnhancedReminderEnabledSync()) }
-    
+    var batteryIgnored by remember {
+        mutableStateOf(BatteryOptimizationHelper.isBatteryOptimizationIgnored(context))
+    }
+
     var showClearDataDialog by remember { mutableStateOf(false) }
     var showBatteryDialog by remember { mutableStateOf(false) }
-    var showThemeDialog by remember { mutableStateOf(false) }
     var showEnhancedReminderDialog by remember { mutableStateOf(false) }
-    
-    val scrollState = rememberScrollState()
-    
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.settings_title)) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            )
+
+    DisposableEffect(lifecycleOwner, context) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                batteryIgnored = BatteryOptimizationHelper.isBatteryOptimizationIgnored(context)
+            }
         }
-    ) { paddingValues ->
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .statusBarsPadding()
+    ) {
+        TopBar(onNavigateBack = onNavigateBack)
+
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(scrollState)
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .navigationBarsPadding()
+                .padding(horizontal = 20.dp)
         ) {
-            // 提醒设置
-            SettingsSection(title = "提醒设置") {
-                // 每日提醒开关
+            SectionLabel(stringResource(R.string.settings_section_reminder))
+            SettingsGroup {
                 SettingsSwitchItem(
+                    icon = R.drawable.ic_lucide_bell,
                     title = stringResource(R.string.daily_reminder),
-                    subtitle = if (reminderEnabled) "已开启" else "已关闭",
-                    icon = Icons.Default.Notifications,
+                    subtitle = if (reminderEnabled) {
+                        stringResource(R.string.reminder_on)
+                    } else {
+                        stringResource(R.string.reminder_off)
+                    },
                     checked = reminderEnabled,
                     onCheckedChange = { enabled ->
                         reminderEnabled = enabled
@@ -96,14 +127,13 @@ fun SettingsScreen(
                         }
                     }
                 )
-                
-                // 提醒时间
                 AnimatedVisibility(visible = reminderEnabled) {
                     Column {
+                        Hairline()
                         SettingsItem(
+                            icon = R.drawable.ic_lucide_clock,
                             title = stringResource(R.string.reminder_time),
                             subtitle = String.format("%02d:%02d", reminderHour, reminderMinute),
-                            icon = Icons.Default.Schedule,
                             onClick = {
                                 TimePickerDialog(
                                     context,
@@ -122,19 +152,18 @@ fun SettingsScreen(
                                 ).show()
                             }
                         )
-                        
-                        // 增强提醒模式
+                        Hairline()
                         SettingsSwitchItem(
+                            icon = R.drawable.ic_lucide_shield,
                             title = stringResource(R.string.enhanced_reminder),
-                            subtitle = if (enhancedReminder) 
-                                stringResource(R.string.enhanced_reminder_subtitle_on) 
-                            else 
-                                stringResource(R.string.enhanced_reminder_subtitle_off),
-                            icon = Icons.Default.Shield,
+                            subtitle = if (enhancedReminder) {
+                                stringResource(R.string.enhanced_reminder_subtitle_on)
+                            } else {
+                                stringResource(R.string.enhanced_reminder_subtitle_off)
+                            },
                             checked = enhancedReminder,
                             onCheckedChange = { enabled ->
                                 if (enabled && !enhancedReminder) {
-                                    // 首次开启时显示说明对话框
                                     showEnhancedReminderDialog = true
                                 } else {
                                     enhancedReminder = enabled
@@ -152,81 +181,79 @@ fun SettingsScreen(
                     }
                 }
             }
-            
-            Divider()
-            
-            // 外观设置
-            SettingsSection(title = "外观") {
-                SettingsItem(
-                    title = stringResource(R.string.theme),
-                    subtitle = when (themeMode) {
-                        CheckInDataStore.THEME_LIGHT -> stringResource(R.string.theme_light)
-                        CheckInDataStore.THEME_DARK -> stringResource(R.string.theme_dark)
-                        else -> stringResource(R.string.theme_system)
-                    },
-                    icon = Icons.Default.ColorLens,
-                    onClick = { showThemeDialog = true }
+
+            SectionLabel(stringResource(R.string.settings_section_appearance))
+            SettingsGroup {
+                Text(
+                    text = stringResource(R.string.theme),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp)
+                )
+                ThemeModePicker(
+                    themeMode = themeMode,
+                    onSelect = { mode ->
+                        themeMode = mode
+                        onThemeChange(mode)
+                        scope.launch {
+                            dataStore.setThemeMode(mode)
+                        }
+                    }
                 )
             }
-            
-            Divider()
-            
-            // 电池优化
-            SettingsSection(title = "后台运行") {
+
+            SectionLabel(stringResource(R.string.settings_section_background))
+            SettingsGroup {
                 SettingsItem(
+                    icon = R.drawable.ic_lucide_battery,
                     title = stringResource(R.string.battery_optimization_title),
-                    subtitle = "确保提醒能正常工作",
-                    icon = Icons.Default.BatteryFull,
+                    subtitle = if (batteryIgnored) {
+                        stringResource(R.string.battery_status_ok)
+                    } else {
+                        stringResource(R.string.battery_status_needed)
+                    },
                     onClick = { showBatteryDialog = true }
                 )
             }
-            
-            Divider()
-            
-            // 数据管理
-            SettingsSection(title = "数据管理") {
+
+            SectionLabel(stringResource(R.string.settings_section_data))
+            SettingsGroup {
                 SettingsItem(
+                    icon = R.drawable.ic_lucide_trash,
                     title = stringResource(R.string.clear_data),
-                    subtitle = "清除所有打卡记录",
-                    icon = Icons.Default.Delete,
+                    subtitle = stringResource(R.string.clear_data_subtitle),
                     isDestructive = true,
                     onClick = { showClearDataDialog = true }
                 )
             }
-            
-            Divider()
-            
-            // 关于
-            SettingsSection(title = "关于") {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+
+            SectionLabel(stringResource(R.string.about))
+            SettingsGroup {
+                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
                     Text(
                         text = stringResource(R.string.app_name),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Medium
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = stringResource(R.string.version, "1.0.0"),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp)
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = stringResource(R.string.privacy_note),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 8.dp)
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
-    
-    // 清除数据确认对话框
+
     if (showClearDataDialog) {
         AlertDialog(
             onDismissRequest = { showClearDataDialog = false },
@@ -241,7 +268,10 @@ fun SettingsScreen(
                         }
                     }
                 ) {
-                    Text(stringResource(R.string.confirm))
+                    Text(
+                        text = stringResource(R.string.confirm),
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             },
             dismissButton = {
@@ -251,8 +281,7 @@ fun SettingsScreen(
             }
         )
     }
-    
-    // 电池优化对话框
+
     if (showBatteryDialog) {
         AlertDialog(
             onDismissRequest = { showBatteryDialog = false },
@@ -285,62 +314,7 @@ fun SettingsScreen(
             }
         )
     }
-    
-    // 主题选择对话框
-    if (showThemeDialog) {
-        AlertDialog(
-            onDismissRequest = { showThemeDialog = false },
-            title = { Text(stringResource(R.string.theme)) },
-            text = {
-                Column {
-                    ThemeOption(
-                        title = stringResource(R.string.theme_light),
-                        selected = themeMode == CheckInDataStore.THEME_LIGHT,
-                        onClick = {
-                            themeMode = CheckInDataStore.THEME_LIGHT
-                            scope.launch {
-                                dataStore.setThemeMode(CheckInDataStore.THEME_LIGHT)
-                                onThemeChange(CheckInDataStore.THEME_LIGHT)
-                            }
-                            showThemeDialog = false
-                        }
-                    )
-                    ThemeOption(
-                        title = stringResource(R.string.theme_dark),
-                        selected = themeMode == CheckInDataStore.THEME_DARK,
-                        onClick = {
-                            themeMode = CheckInDataStore.THEME_DARK
-                            scope.launch {
-                                dataStore.setThemeMode(CheckInDataStore.THEME_DARK)
-                                onThemeChange(CheckInDataStore.THEME_DARK)
-                            }
-                            showThemeDialog = false
-                        }
-                    )
-                    ThemeOption(
-                        title = stringResource(R.string.theme_system),
-                        selected = themeMode == CheckInDataStore.THEME_SYSTEM,
-                        onClick = {
-                            themeMode = CheckInDataStore.THEME_SYSTEM
-                            scope.launch {
-                                dataStore.setThemeMode(CheckInDataStore.THEME_SYSTEM)
-                                onThemeChange(CheckInDataStore.THEME_SYSTEM)
-                            }
-                            showThemeDialog = false
-                        }
-                    )
-                }
-            },
-            confirmButton = {},
-            dismissButton = {
-                TextButton(onClick = { showThemeDialog = false }) {
-                    Text(stringResource(R.string.cancel))
-                }
-            }
-        )
-    }
-    
-    // 增强提醒模式说明对话框
+
     if (showEnhancedReminderDialog) {
         AlertDialog(
             onDismissRequest = { showEnhancedReminderDialog = false },
@@ -370,64 +344,102 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun SettingsSection(
-    title: String,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth()
+private fun TopBar(onNavigateBack: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 4.dp, end = 20.dp, top = 4.dp, bottom = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
+        IconButton(onClick = onNavigateBack) {
+            Icon(
+                painter = painterResource(R.drawable.ic_lucide_arrow_left),
+                contentDescription = stringResource(R.string.back),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
         Text(
-            text = title,
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+            text = stringResource(R.string.settings_title),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.semantics { heading() }
         )
+    }
+}
+
+@Composable
+private fun SectionLabel(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier
+            .padding(start = 16.dp, top = 24.dp, bottom = 8.dp)
+            .semantics { heading() }
+    )
+}
+
+@Composable
+private fun SettingsGroup(content: @Composable () -> Unit) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         content()
     }
+}
+
+@Composable
+private fun Hairline() {
+    HorizontalDivider(
+        modifier = Modifier.padding(start = 52.dp),
+        color = MaterialTheme.colorScheme.outline,
+        thickness = 1.dp
+    )
 }
 
 @Composable
 private fun SettingsItem(
     title: String,
     subtitle: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: Int,
     isDestructive: Boolean = false,
     onClick: () -> Unit
 ) {
+    val tint = if (isDestructive) {
+        MaterialTheme.colorScheme.error
+    } else {
+        MaterialTheme.colorScheme.primary
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .clickable(onClick = onClick, role = Role.Button)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = icon,
+            painter = painterResource(icon),
             contentDescription = null,
-            tint = if (isDestructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(24.dp)
+            tint = tint,
+            modifier = Modifier.size(22.dp)
         )
-        Spacer(modifier = Modifier.width(16.dp))
-        Column(modifier = Modifier.weight(1f)) {
+        Column(modifier = Modifier.padding(start = 14.dp)) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
-                color = if (isDestructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                color = if (isDestructive) {
+                    MaterialTheme.colorScheme.error
+                } else {
+                    MaterialTheme.colorScheme.onBackground
+                }
             )
             if (subtitle.isNotEmpty()) {
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 2.dp)
                 )
             }
         }
-        Icon(
-            imageVector = Icons.Default.KeyboardArrowRight,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
     }
 }
 
@@ -435,74 +447,106 @@ private fun SettingsItem(
 private fun SettingsSwitchItem(
     title: String,
     subtitle: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: Int,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .toggleable(
+                value = checked,
+                role = Role.Switch,
+                onValueChange = onCheckedChange
+            )
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = icon,
+            painter = painterResource(icon),
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(24.dp)
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(22.dp)
         )
-        Spacer(modifier = Modifier.width(16.dp))
-        Column(modifier = Modifier.weight(1f)) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 14.dp, end = 12.dp)
+        ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onBackground
             )
             if (subtitle.isNotEmpty()) {
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 2.dp)
                 )
             }
         }
         Switch(
             checked = checked,
-            onCheckedChange = onCheckedChange
+            onCheckedChange = null,
+            modifier = Modifier.clearAndSetSemantics {}
         )
     }
 }
 
 @Composable
-private fun ThemeOption(
-    title: String,
-    selected: Boolean,
-    onClick: () -> Unit
+private fun ThemeModePicker(
+    themeMode: String,
+    onSelect: (String) -> Unit
 ) {
+    val options = listOf(
+        CheckInDataStore.THEME_LIGHT to stringResource(R.string.theme_light),
+        CheckInDataStore.THEME_DARK to stringResource(R.string.theme_dark),
+        CheckInDataStore.THEME_SYSTEM to stringResource(R.string.theme_system)
+    )
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(top = 4.dp, bottom = 8.dp)
     ) {
-        RadioButton(
-            selected = selected,
-            onClick = onClick
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodyLarge
-        )
+        options.forEach { (value, label) ->
+            val selected = themeMode == value
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .selectable(
+                        selected = selected,
+                        role = Role.RadioButton,
+                        onClick = { if (!selected) onSelect(value) }
+                    )
+                    .padding(vertical = 10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal,
+                    color = if (selected) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    }
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(
+                    modifier = Modifier
+                        .height(2.dp)
+                        .width(28.dp)
+                        .background(
+                            if (selected) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                androidx.compose.ui.graphics.Color.Transparent
+                            }
+                        )
+                )
+            }
+        }
     }
-}
-
-@Composable
-private fun stringResource(id: Int): String {
-    return LocalContext.current.getString(id)
-}
-
-@Composable
-private fun stringResource(id: Int, vararg formatArgs: Any): String {
-    return LocalContext.current.getString(id, *formatArgs)
 }

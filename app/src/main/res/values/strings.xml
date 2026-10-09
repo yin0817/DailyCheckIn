@@ -4,14 +4,47 @@
     
     <!-- 主界面 -->
     <string name="check_in_today">点击打卡</string>
+    <string name="check_in_action">打卡</string>
+    <string name="check_in_hint">记下今天</string>
+    <string name="marked_today">今天已经记下</string>
     <string name="checked_in_today">今日已打卡</string>
+    <string name="presence_streak">连续 %1$d 天，一共 %2$d 天</string>
+    <string name="presence_total">一共 %1$d 天</string>
+    <string name="presence_empty">还没有记下的日子</string>
     <string name="consecutive_days">连续打卡 %d 天</string>
+    <string name="streak_caption">连续打卡</string>
+    <string name="streak_empty_caption">从今天开始</string>
+    <string name="cd_streak_empty">还没有连续打卡</string>
     <string name="first_check_in">开启你的第一天</string>
     <string name="calendar">打卡日历</string>
     <string name="settings">设置</string>
+    <string name="total_check_in_label">累计打卡</string>
+    <string name="day_unit">天</string>
+    <string name="open_calendar">查看日历</string>
+    <string name="back">返回</string>
     
     <!-- 日历 -->
     <string name="calendar_title">打卡日历</string>
+    <string name="previous_month">上个月</string>
+    <string name="next_month">下个月</string>
+    <string name="back_to_today">回到今天</string>
+    <string name="stat_total">总天数</string>
+    <string name="stat_streak">连续</string>
+    <string name="stat_this_month">本月</string>
+    <string name="stat_shown_month">当月</string>
+    <string name="calendar_empty_month">这个月还是空白</string>
+    <string name="calendar_summary_streak_blank">连续 %1$d 天。这个月还是空白</string>
+    <string name="calendar_summary_streak_month">连续 %1$d 天，这个月 %2$d 天</string>
+    <string name="calendar_summary_streak_other">连续 %1$d 天，%2$d月 %3$d 天</string>
+    <string name="calendar_summary_month">这个月 %1$d 天</string>
+    <string name="calendar_summary_other">%1$d月 %2$d 天</string>
+    <string name="legend_checked">已打卡</string>
+    <string name="legend_today">今天</string>
+    <string name="cd_day_checked_today">%1$s，今天，已打卡</string>
+    <string name="cd_day_checked">%1$s，已打卡</string>
+    <string name="cd_day_today">%1$s，今天，未打卡</string>
+    <string name="cd_day_future">%1$s，未到</string>
+    <string name="cd_day_missed">%1$s，未打卡</string>
     <string name="mon">一</string>
     <string name="tue">二</string>
     <string name="wed">三</string>
@@ -19,17 +52,33 @@
     <string name="fri">五</string>
     <string name="sat">六</string>
     <string name="sun">日</string>
+    <string name="weekday_mon">星期一</string>
+    <string name="weekday_tue">星期二</string>
+    <string name="weekday_wed">星期三</string>
+    <string name="weekday_thu">星期四</string>
+    <string name="weekday_fri">星期五</string>
+    <string name="weekday_sat">星期六</string>
+    <string name="weekday_sun">星期日</string>
     
     <!-- 设置 -->
     <string name="settings_title">设置</string>
     <string name="daily_reminder">每日提醒</string>
+    <string name="reminder_on">到点提醒</string>
+    <string name="reminder_off">不提醒</string>
     <string name="reminder_time">提醒时间</string>
+    <string name="settings_section_reminder">提醒</string>
+    <string name="settings_section_appearance">外观</string>
+    <string name="settings_section_background">后台运行</string>
+    <string name="settings_section_data">数据</string>
+    <string name="battery_status_ok">电池优化已关闭</string>
+    <string name="battery_status_needed">建议关闭，以免错过提醒</string>
     <string name="default_reminder_time">20:00</string>
     <string name="theme">主题</string>
     <string name="theme_light">浅色</string>
     <string name="theme_dark">深色</string>
     <string name="theme_system">跟随系统</string>
     <string name="clear_data">清除所有数据</string>
+    <string name="clear_data_subtitle">清除所有打卡记录</string>
     <string name="clear_data_confirm">确定要清除所有打卡记录吗？此操作不可恢复。</string>
     <string name="cancel">取消</string>
     <string name="confirm">确定</string>

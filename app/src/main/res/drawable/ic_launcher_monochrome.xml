@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Flat blue field is the background. The mark is Lucide "check"
-     https://github.com/lucide-icons/lucide/blob/main/icons/check.svg (ISC / Feather MIT). -->
+<!-- Lucide "check" https://github.com/lucide-icons/lucide/blob/main/icons/check.svg
+     ISC License. Feather-derived icons are also MIT (Cole Bemis). See third_party/lucide/LICENSE. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
@@ -14,7 +14,7 @@
         <path
             android:pathData="M20 6 9 17l-5-5"
             android:fillColor="#00000000"
-            android:strokeColor="#FFFFFF"
+            android:strokeColor="#FF000000"
             android:strokeWidth="2.6"
             android:strokeLineCap="round"
             android:strokeLineJoin="round"/>

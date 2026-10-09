@@ -1,69 +1,101 @@
 package com.dailycheckin.ui.theme
 
 import android.app.Activity
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 
-// 柔和的渐变色系
+/**
+ * One flat plane and a clear blue.
+ * Blue is the brand, the empty ring, and the completed day. No raised sheets.
+ */
 object AppColors {
-    // 主色 - 柔和的靛蓝
-    val Primary = Color(0xFF5B7FFF)
-    val PrimaryLight = Color(0xFF8BA4FF)
-    val PrimaryDark = Color(0xFF3D5AFE)
-    
-    // 强调色 - 珊瑚橙
-    val Accent = Color(0xFFFF7B7B)
-    val AccentLight = Color(0xFFFFADAD)
-    
-    // 成功色
-    val Success = Color(0xFF4CAF50)
-    val SuccessLight = Color(0xFFE8F5E9)
-    
-    // 中性色
-    val Gray100 = Color(0xFFF7F8FA)
-    val Gray200 = Color(0xFFEEF0F4)
-    val Gray400 = Color(0xFFB0B8C4)
-    val Gray600 = Color(0xFF6B7280)
-    val Gray800 = Color(0xFF1F2937)
-    val Gray900 = Color(0xFF111827)
+    val Canvas = Color(0xFFFFFFFF)
+    val Ink = Color(0xFF12151C)
+    val Stone = Color(0xFF5C6778)
+    val Line = Color(0xFFE3E8F0)
+    val Blue = Color(0xFF3B82F6)
+
+    val CanvasNight = Color(0xFF0B1220)
+    val InkNight = Color(0xFFF4F7FB)
+    val StoneNight = Color(0xFF9AA8BD)
+    val LineNight = Color(0xFF1E2A3D)
+    val BlueNight = Color(0xFF60A5FA)
+    val OnBlueNight = Color(0xFF071426)
+
+    val Danger = Color(0xFF8C2F2A)
+    val DangerNight = Color(0xFFF0B4AE)
 }
 
 private val LightColors = lightColorScheme(
-    primary = AppColors.Primary,
+    primary = AppColors.Blue,
     onPrimary = Color.White,
-    primaryContainer = AppColors.PrimaryLight.copy(alpha = 0.2f),
-    onPrimaryContainer = AppColors.PrimaryDark,
-    secondary = AppColors.Accent,
-    onSecondary = Color.White,
-    background = Color.White,
-    onBackground = AppColors.Gray800,
-    surface = Color.White,
-    onSurface = AppColors.Gray800,
-    surfaceVariant = AppColors.Gray100,
-    onSurfaceVariant = AppColors.Gray600,
-    outline = AppColors.Gray200
+    primaryContainer = AppColors.Blue,
+    onPrimaryContainer = Color.White,
+    secondary = AppColors.Ink,
+    onSecondary = AppColors.Canvas,
+    background = AppColors.Canvas,
+    onBackground = AppColors.Ink,
+    surface = AppColors.Canvas,
+    onSurface = AppColors.Ink,
+    surfaceVariant = AppColors.Canvas,
+    onSurfaceVariant = AppColors.Stone,
+    outline = AppColors.Line,
+    outlineVariant = AppColors.Line,
+    error = AppColors.Danger,
+    onError = Color.White,
+    errorContainer = Color(0xFFF8E8E6),
+    onErrorContainer = AppColors.Danger,
+    surfaceContainerLowest = AppColors.Canvas,
+    surfaceContainerLow = AppColors.Canvas,
+    surfaceContainer = AppColors.Canvas,
+    surfaceContainerHigh = AppColors.Canvas,
+    surfaceContainerHighest = AppColors.Canvas
 )
 
 private val DarkColors = darkColorScheme(
-    primary = AppColors.PrimaryLight,
-    onPrimary = AppColors.Gray900,
-    primaryContainer = AppColors.Primary.copy(alpha = 0.3f),
-    onPrimaryContainer = AppColors.PrimaryLight,
-    secondary = AppColors.AccentLight,
-    onSecondary = AppColors.Gray900,
-    background = Color(0xFF0D1117),
-    onBackground = Color(0xFFF0F6FC),
-    surface = Color(0xFF161B22),
-    onSurface = Color(0xFFF0F6FC),
-    surfaceVariant = Color(0xFF21262D),
-    onSurfaceVariant = AppColors.Gray400,
-    outline = Color(0xFF30363D)
+    primary = AppColors.BlueNight,
+    onPrimary = AppColors.OnBlueNight,
+    primaryContainer = AppColors.BlueNight,
+    onPrimaryContainer = AppColors.OnBlueNight,
+    secondary = AppColors.InkNight,
+    onSecondary = AppColors.CanvasNight,
+    background = AppColors.CanvasNight,
+    onBackground = AppColors.InkNight,
+    surface = AppColors.CanvasNight,
+    onSurface = AppColors.InkNight,
+    surfaceVariant = AppColors.CanvasNight,
+    onSurfaceVariant = AppColors.StoneNight,
+    outline = AppColors.LineNight,
+    outlineVariant = AppColors.LineNight,
+    error = AppColors.DangerNight,
+    onError = AppColors.CanvasNight,
+    errorContainer = Color(0xFF3A221F),
+    onErrorContainer = AppColors.DangerNight,
+    surfaceContainerLowest = AppColors.CanvasNight,
+    surfaceContainerLow = AppColors.CanvasNight,
+    surfaceContainer = AppColors.CanvasNight,
+    surfaceContainerHigh = AppColors.CanvasNight,
+    surfaceContainerHighest = AppColors.CanvasNight
+)
+
+private val AppShapes = Shapes(
+    extraSmall = RoundedCornerShape(8.dp),
+    small = RoundedCornerShape(12.dp),
+    medium = RoundedCornerShape(16.dp),
+    large = RoundedCornerShape(20.dp),
+    extraLarge = RoundedCornerShape(28.dp)
 )
 
 @Composable
@@ -76,22 +108,28 @@ fun DailyCheckInTheme(
         "dark" -> true
         else -> isSystemInDarkTheme()
     }
-    
+
     val colorScheme = if (darkTheme) DarkColors else LightColors
     val view = LocalView.current
-    
+
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
             window.statusBarColor = Color.Transparent.toArgb()
-            WindowCompat.setDecorFitsSystemWindows(window, false)
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            window.navigationBarColor = Color.Transparent.toArgb()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                window.isNavigationBarContrastEnforced = false
+            }
+            val controller = WindowCompat.getInsetsController(window, view)
+            controller.isAppearanceLightStatusBars = !darkTheme
+            controller.isAppearanceLightNavigationBars = !darkTheme
         }
     }
-    
+
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
+        shapes = AppShapes,
         content = content
     )
 }

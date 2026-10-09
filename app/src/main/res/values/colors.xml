@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 主色 - 柔和靛蓝 -->
-    <color name="primary">#5B7FFF</color>
-    <color name="primary_dark">#3D5AFE</color>
-    <color name="primary_light">#8BA4FF</color>
-    <color name="accent">#5B7FFF</color>
-    
-    <!-- 背景 -->
+    <!-- Clear blue on a flat page -->
+    <color name="primary">#3B82F6</color>
+    <color name="primary_dark">#3B82F6</color>
+    <color name="primary_light">#60A5FA</color>
+    <color name="accent">#3B82F6</color>
+
     <color name="background_light">#FFFFFF</color>
-    <color name="background_dark">#0D1117</color>
+    <color name="background_dark">#0B1220</color>
     
     <!-- 成功色 -->
     <color name="success">#4CAF50</color>
