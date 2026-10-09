@@ -25,13 +25,13 @@ object AppColors {
     val Ink = Color(0xFF12151C)
     val Stone = Color(0xFF5C6778)
     val Line = Color(0xFFE3E8F0)
-    val Blue = Color(0xFF2563EB)
+    val Blue = Color(0xFF3B82F6)
 
     val CanvasNight = Color(0xFF0B1220)
     val InkNight = Color(0xFFF4F7FB)
     val StoneNight = Color(0xFF9AA8BD)
     val LineNight = Color(0xFF1E2A3D)
-    val BlueNight = Color(0xFF4C8DFF)
+    val BlueNight = Color(0xFF60A5FA)
     val OnBlueNight = Color(0xFF071426)
 
     val Danger = Color(0xFF8C2F2A)

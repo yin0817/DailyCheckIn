@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Clear blue on a flat page -->
-    <color name="primary">#2563EB</color>
-    <color name="primary_dark">#2563EB</color>
-    <color name="primary_light">#4C8DFF</color>
-    <color name="accent">#2563EB</color>
+    <color name="primary">#3B82F6</color>
+    <color name="primary_dark">#3B82F6</color>
+    <color name="primary_light">#60A5FA</color>
+    <color name="accent">#3B82F6</color>
 
     <color name="background_light">#FFFFFF</color>
     <color name="background_dark">#0B1220</color>
