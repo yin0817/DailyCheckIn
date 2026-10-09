@@ -12,14 +12,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -39,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -105,6 +105,7 @@ fun SettingsScreen(
         ) {
             SectionLabel(stringResource(R.string.settings_section_reminder))
             SettingsSwitchItem(
+                icon = R.drawable.ic_lucide_bell,
                 title = stringResource(R.string.daily_reminder),
                 subtitle = if (reminderEnabled) {
                     stringResource(R.string.reminder_on)
@@ -129,6 +130,7 @@ fun SettingsScreen(
                 Column {
                     Hairline()
                     SettingsItem(
+                        icon = R.drawable.ic_lucide_clock,
                         title = stringResource(R.string.reminder_time),
                         subtitle = String.format("%02d:%02d", reminderHour, reminderMinute),
                         onClick = {
@@ -151,6 +153,7 @@ fun SettingsScreen(
                     )
                     Hairline()
                     SettingsSwitchItem(
+                        icon = R.drawable.ic_lucide_shield,
                         title = stringResource(R.string.enhanced_reminder),
                         subtitle = if (enhancedReminder) {
                             stringResource(R.string.enhanced_reminder_subtitle_on)
@@ -197,6 +200,7 @@ fun SettingsScreen(
 
             SectionLabel(stringResource(R.string.settings_section_background))
             SettingsItem(
+                icon = R.drawable.ic_lucide_battery,
                 title = stringResource(R.string.battery_optimization_title),
                 subtitle = if (batteryIgnored) {
                     stringResource(R.string.battery_status_ok)
@@ -208,6 +212,7 @@ fun SettingsScreen(
 
             SectionLabel(stringResource(R.string.settings_section_data))
             SettingsItem(
+                icon = R.drawable.ic_lucide_trash,
                 title = stringResource(R.string.clear_data),
                 subtitle = stringResource(R.string.clear_data_subtitle),
                 isDestructive = true,
@@ -335,7 +340,7 @@ private fun TopBar(onNavigateBack: () -> Unit) {
     ) {
         IconButton(onClick = onNavigateBack) {
             Icon(
-                Icons.AutoMirrored.Outlined.ArrowBack,
+                painter = painterResource(R.drawable.ic_lucide_arrow_left),
                 contentDescription = stringResource(R.string.back),
                 tint = MaterialTheme.colorScheme.onBackground
             )
@@ -370,31 +375,45 @@ private fun Hairline() {
 private fun SettingsItem(
     title: String,
     subtitle: String,
+    icon: Int,
     isDestructive: Boolean = false,
     onClick: () -> Unit
 ) {
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick, role = Role.Button)
-            .padding(vertical = 14.dp)
+            .padding(vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodyLarge,
-            color = if (isDestructive) {
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = null,
+            tint = if (isDestructive) {
                 MaterialTheme.colorScheme.error
             } else {
-                MaterialTheme.colorScheme.onBackground
-            }
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+            modifier = Modifier.size(20.dp)
         )
-        if (subtitle.isNotEmpty()) {
+        Column(modifier = Modifier.padding(start = 16.dp)) {
             Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 2.dp)
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = if (isDestructive) {
+                    MaterialTheme.colorScheme.error
+                } else {
+                    MaterialTheme.colorScheme.onBackground
+                }
             )
+            if (subtitle.isNotEmpty()) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
         }
     }
 }
@@ -403,6 +422,7 @@ private fun SettingsItem(
 private fun SettingsSwitchItem(
     title: String,
     subtitle: String,
+    icon: Int,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
@@ -417,7 +437,17 @@ private fun SettingsSwitchItem(
             .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(modifier = Modifier.weight(1f)) {
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(20.dp)
+        )
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 16.dp)
+        ) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,

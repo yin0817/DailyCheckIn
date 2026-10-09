@@ -16,14 +16,9 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.rounded.ChevronLeft
-import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -104,8 +100,25 @@ fun CalendarScreen(
                 text = summary,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 8.dp, bottom = 20.dp)
+                modifier = Modifier.padding(top = 8.dp, bottom = if (checkedInDates.isEmpty()) 16.dp else 20.dp)
             )
+            if (checkedInDates.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 20.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_lucide_square_dashed),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clearAndSetSemantics {}
+                    )
+                }
+            }
             CalendarGrid(
                 yearMonth = currentMonth,
                 checkedInDates = checkedInDates,
@@ -155,7 +168,7 @@ private fun TopBar(onNavigateBack: () -> Unit) {
     ) {
         IconButton(onClick = onNavigateBack) {
             Icon(
-                Icons.AutoMirrored.Outlined.ArrowBack,
+                painter = painterResource(R.drawable.ic_lucide_arrow_left),
                 contentDescription = stringResource(R.string.back),
                 tint = MaterialTheme.colorScheme.onBackground
             )
@@ -190,7 +203,7 @@ private fun MonthSelector(
         )
         IconButton(onClick = onPreviousMonth) {
             Icon(
-                Icons.Rounded.ChevronLeft,
+                painter = painterResource(R.drawable.ic_lucide_chevron_left),
                 contentDescription = stringResource(R.string.previous_month),
                 tint = MaterialTheme.colorScheme.onBackground
             )
@@ -200,7 +213,7 @@ private fun MonthSelector(
             enabled = !isCurrentMonth
         ) {
             Icon(
-                Icons.Rounded.ChevronRight,
+                painter = painterResource(R.drawable.ic_lucide_chevron_right),
                 contentDescription = stringResource(R.string.next_month),
                 tint = if (isCurrentMonth) {
                     MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
@@ -333,12 +346,19 @@ private fun DayCell(
                 color = numberColor
             )
         }
-        Spacer(modifier = Modifier.height(3.dp))
+        Spacer(modifier = Modifier.height(2.dp))
         Box(
-            modifier = Modifier
-                .width(14.dp)
-                .height(2.dp)
-                .background(if (isCheckedIn) seal else androidx.compose.ui.graphics.Color.Transparent)
-        )
+            modifier = Modifier.size(12.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            if (isCheckedIn) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_lucide_check),
+                    contentDescription = null,
+                    tint = seal,
+                    modifier = Modifier.size(12.dp)
+                )
+            }
+        }
     }
 }

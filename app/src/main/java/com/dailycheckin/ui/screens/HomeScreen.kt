@@ -27,10 +27,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +44,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -197,14 +194,14 @@ private fun TopBar(
         )
         IconButton(onClick = onCalendarClick) {
             Icon(
-                Icons.Outlined.CalendarMonth,
+                painter = painterResource(R.drawable.ic_lucide_calendar),
                 contentDescription = stringResource(R.string.calendar),
                 tint = MaterialTheme.colorScheme.onBackground
             )
         }
         IconButton(onClick = onSettingsClick) {
             Icon(
-                Icons.Outlined.Settings,
+                painter = painterResource(R.drawable.ic_lucide_settings),
                 contentDescription = stringResource(R.string.settings),
                 tint = MaterialTheme.colorScheme.onBackground
             )
@@ -282,11 +279,11 @@ private fun CheckInStamp(
         ) { checked ->
             if (checked) {
                 Icon(
-                    Icons.Rounded.Check,
+                    painter = painterResource(R.drawable.ic_lucide_check),
                     contentDescription = null,
                     tint = content,
                     modifier = Modifier
-                        .size(64.dp)
+                        .size(72.dp)
                         .clearAndSetSemantics {}
                 )
             } else {
