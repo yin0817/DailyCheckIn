@@ -11,94 +11,91 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 
+/**
+ * Paper and ink, with one seal blue.
+ * Seal is only for the daily mark and for today.
+ */
 object AppColors {
-    val Primary = Color(0xFF5B7FFF)
-    val PrimaryLight = Color(0xFFB7C6FF)
-    val Ink = Color(0xFF2F4ED8)
+    val Paper = Color(0xFFF4F5F2)
+    val Ink = Color(0xFF1C1F1A)
+    val Moss = Color(0xFF4A5148)
+    val Rule = Color(0xFFD5D8D1)
+    val Seal = Color(0xFF1E3A8A)
 
-    val SuccessContainer = Color(0xFFE3F5EA)
-    val SuccessOnContainer = Color(0xFF146C3A)
-    val SuccessContainerDark = Color(0xFF1C3328)
-    val SuccessOnDark = Color(0xFF9BE0B6)
+    val PaperNight = Color(0xFF141612)
+    val InkNight = Color(0xFFE6E7E2)
+    val MossNight = Color(0xFFA3AA9E)
+    val RuleNight = Color(0xFF2C312C)
+    val SealNight = Color(0xFFC9D4FA)
 
-    val Gray100 = Color(0xFFF4F6FB)
-    val Gray800 = Color(0xFF1B2433)
-    val Gray900 = Color(0xFF10141C)
+    val Danger = Color(0xFF8C2F2A)
+    val DangerNight = Color(0xFFF0B4AE)
 }
 
 private val LightColors = lightColorScheme(
-    primary = AppColors.Ink,
+    primary = AppColors.Seal,
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFE4E9FF),
-    onPrimaryContainer = Color(0xFF1B2F86),
+    primaryContainer = AppColors.Seal,
+    onPrimaryContainer = Color.White,
     secondary = AppColors.Ink,
-    onSecondary = Color.White,
-    background = AppColors.Gray100,
-    onBackground = AppColors.Gray800,
-    surface = Color.White,
-    onSurface = AppColors.Gray800,
-    surfaceVariant = Color(0xFFE8ECF5),
-    onSurfaceVariant = Color(0xFF5C677A),
-    outline = Color(0xFFD5DCEC),
-    outlineVariant = Color(0xFFE3E8F2),
-    error = Color(0xFFBA1A1A),
+    onSecondary = AppColors.Paper,
+    background = AppColors.Paper,
+    onBackground = AppColors.Ink,
+    surface = AppColors.Paper,
+    onSurface = AppColors.Ink,
+    surfaceVariant = AppColors.Paper,
+    onSurfaceVariant = AppColors.Moss,
+    outline = AppColors.Rule,
+    outlineVariant = AppColors.Rule,
+    error = AppColors.Danger,
     onError = Color.White,
-    errorContainer = Color(0xFFFFDAD6),
-    onErrorContainer = Color(0xFF410002)
+    errorContainer = Color(0xFFF6E4E1),
+    onErrorContainer = AppColors.Danger,
+    surfaceContainerLowest = AppColors.Paper,
+    surfaceContainerLow = AppColors.Paper,
+    surfaceContainer = Color(0xFFE8EAE4),
+    surfaceContainerHigh = Color(0xFFE8EAE4),
+    surfaceContainerHighest = Color(0xFFE1E4DC)
 )
 
 private val DarkColors = darkColorScheme(
-    primary = AppColors.PrimaryLight,
-    onPrimary = Color(0xFF13215C),
-    primaryContainer = Color(0xFF2A3878),
-    onPrimaryContainer = Color(0xFFDCE3FF),
-    secondary = AppColors.PrimaryLight,
-    onSecondary = Color(0xFF13215C),
-    background = AppColors.Gray900,
-    onBackground = Color(0xFFE8ECF4),
-    surface = Color(0xFF181D27),
-    onSurface = Color(0xFFE8ECF4),
-    surfaceVariant = Color(0xFF262C3A),
-    onSurfaceVariant = Color(0xFFC3CAD8),
-    outline = Color(0xFF3A4254),
-    outlineVariant = Color(0xFF2C3344),
-    error = Color(0xFFFFB4AB),
-    onError = Color(0xFF690005),
-    errorContainer = Color(0xFF93000A),
-    onErrorContainer = Color(0xFFFFDAD6)
+    primary = AppColors.SealNight,
+    onPrimary = AppColors.PaperNight,
+    primaryContainer = AppColors.SealNight,
+    onPrimaryContainer = AppColors.PaperNight,
+    secondary = AppColors.InkNight,
+    onSecondary = AppColors.PaperNight,
+    background = AppColors.PaperNight,
+    onBackground = AppColors.InkNight,
+    surface = AppColors.PaperNight,
+    onSurface = AppColors.InkNight,
+    surfaceVariant = AppColors.PaperNight,
+    onSurfaceVariant = AppColors.MossNight,
+    outline = AppColors.RuleNight,
+    outlineVariant = AppColors.RuleNight,
+    error = AppColors.DangerNight,
+    onError = AppColors.PaperNight,
+    errorContainer = Color(0xFF3A221F),
+    onErrorContainer = AppColors.DangerNight,
+    surfaceContainerLowest = AppColors.PaperNight,
+    surfaceContainerLow = AppColors.PaperNight,
+    surfaceContainer = Color(0xFF1E221C),
+    surfaceContainerHigh = Color(0xFF1E221C),
+    surfaceContainerHighest = Color(0xFF262B24)
 )
 
 private val AppShapes = Shapes(
-    extraSmall = RoundedCornerShape(8.dp),
-    small = RoundedCornerShape(12.dp),
-    medium = RoundedCornerShape(16.dp),
-    large = RoundedCornerShape(20.dp),
-    extraLarge = RoundedCornerShape(28.dp)
+    extraSmall = RoundedCornerShape(4.dp),
+    small = RoundedCornerShape(8.dp),
+    medium = RoundedCornerShape(12.dp),
+    large = RoundedCornerShape(16.dp),
+    extraLarge = RoundedCornerShape(20.dp)
 )
-
-@Composable
-fun doneContainerColor(): Color {
-    return if (MaterialTheme.colorScheme.background.luminance() < 0.5f) {
-        AppColors.SuccessContainerDark
-    } else {
-        AppColors.SuccessContainer
-    }
-}
-
-@Composable
-fun doneContentColor(): Color {
-    return if (MaterialTheme.colorScheme.background.luminance() < 0.5f) {
-        AppColors.SuccessOnDark
-    } else {
-        AppColors.SuccessOnContainer
-    }
-}
 
 @Composable
 fun DailyCheckInTheme(

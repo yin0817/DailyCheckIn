@@ -5,8 +5,12 @@
     <!-- 主界面 -->
     <string name="check_in_today">点击打卡</string>
     <string name="check_in_action">打卡</string>
-    <string name="check_in_hint">轻点一次，完成今天</string>
+    <string name="check_in_hint">记下今天</string>
+    <string name="marked_today">今天已经记下</string>
     <string name="checked_in_today">今日已打卡</string>
+    <string name="presence_streak">连续 %1$d 天，一共 %2$d 天</string>
+    <string name="presence_total">一共 %1$d 天</string>
+    <string name="presence_empty">还没有记下的日子</string>
     <string name="consecutive_days">连续打卡 %d 天</string>
     <string name="streak_caption">连续打卡</string>
     <string name="streak_empty_caption">从今天开始</string>
@@ -28,7 +32,12 @@
     <string name="stat_streak">连续</string>
     <string name="stat_this_month">本月</string>
     <string name="stat_shown_month">当月</string>
-    <string name="calendar_empty_month">这个月还没有打卡</string>
+    <string name="calendar_empty_month">这个月还是空白</string>
+    <string name="calendar_summary_streak_blank">连续 %1$d 天。这个月还是空白</string>
+    <string name="calendar_summary_streak_month">连续 %1$d 天，这个月 %2$d 天</string>
+    <string name="calendar_summary_streak_other">连续 %1$d 天，%2$d月 %3$d 天</string>
+    <string name="calendar_summary_month">这个月 %1$d 天</string>
+    <string name="calendar_summary_other">%1$d月 %2$d 天</string>
     <string name="legend_checked">已打卡</string>
     <string name="legend_today">今天</string>
     <string name="cd_day_checked_today">%1$s，今天，已打卡</string>
@@ -54,8 +63,8 @@
     <!-- 设置 -->
     <string name="settings_title">设置</string>
     <string name="daily_reminder">每日提醒</string>
-    <string name="reminder_on">每天到点提醒</string>
-    <string name="reminder_off">关闭后不会提醒</string>
+    <string name="reminder_on">到点提醒</string>
+    <string name="reminder_off">不提醒</string>
     <string name="reminder_time">提醒时间</string>
     <string name="settings_section_reminder">提醒</string>
     <string name="settings_section_appearance">外观</string>

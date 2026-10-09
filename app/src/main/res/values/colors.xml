@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 主色 - 柔和靛蓝 -->
-    <color name="primary">#2F4ED8</color>
-    <color name="primary_dark">#243EAE</color>
-    <color name="primary_light">#B7C6FF</color>
-    <color name="accent">#2F4ED8</color>
-    
-    <!-- 背景：与 Compose 主题一致，避免启动时闪白或闪蓝 -->
-    <color name="background_light">#F4F6FB</color>
-    <color name="background_dark">#10141C</color>
+    <color name="primary">#1E3A8A</color>
+    <color name="primary_dark">#1E3A8A</color>
+    <color name="primary_light">#C9D4FA</color>
+    <color name="accent">#1E3A8A</color>
+
+    <color name="background_light">#F4F5F2</color>
+    <color name="background_dark">#141612</color>
     
     <!-- 成功色 -->
     <color name="success">#4CAF50</color>
