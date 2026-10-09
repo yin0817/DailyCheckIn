@@ -1,25 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The mark is a seal disc. The check is Lucide "check"
-     https://github.com/lucide-icons/lucide/blob/main/icons/check.svg (ISC / Feather MIT).
-     Stroke is heavier than the 24px source so the mark reads at launcher size. -->
+<!-- Flat blue field is the background. The mark is Lucide "check"
+     https://github.com/lucide-icons/lucide/blob/main/icons/check.svg (ISC / Feather MIT). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path
-        android:pathData="M54,22a32,32 0 1,1 0,64a32,32 0 1,1 0,-64"
-        android:fillColor="#1E3A5F"/>
     <group
-        android:translateX="30"
-        android:translateY="30"
-        android:scaleX="2"
-        android:scaleY="2">
+        android:translateX="25"
+        android:translateY="25"
+        android:scaleX="2.4"
+        android:scaleY="2.4">
         <path
             android:pathData="M20 6 9 17l-5-5"
             android:fillColor="#00000000"
             android:strokeColor="#FFFFFF"
-            android:strokeWidth="2.5"
+            android:strokeWidth="2.6"
             android:strokeLineCap="round"
             android:strokeLineJoin="round"/>
     </group>

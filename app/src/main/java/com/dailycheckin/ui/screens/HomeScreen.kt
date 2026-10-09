@@ -199,14 +199,14 @@ private fun TopBar(
             Icon(
                 painter = painterResource(R.drawable.ic_lucide_calendar),
                 contentDescription = stringResource(R.string.calendar),
-                tint = MaterialTheme.colorScheme.onBackground
+                tint = MaterialTheme.colorScheme.primary
             )
         }
         IconButton(onClick = onSettingsClick) {
             Icon(
                 painter = painterResource(R.drawable.ic_lucide_settings),
                 contentDescription = stringResource(R.string.settings),
-                tint = MaterialTheme.colorScheme.onBackground
+                tint = MaterialTheme.colorScheme.primary
             )
         }
     }
@@ -237,19 +237,10 @@ private fun CheckInRing(
         targetValue = if (isCheckedIn) {
             MaterialTheme.colorScheme.onPrimaryContainer
         } else {
-            MaterialTheme.colorScheme.onBackground
+            MaterialTheme.colorScheme.primary
         },
         animationSpec = tween(180),
         label = "ringContent"
-    )
-    val stroke by animateColorAsState(
-        targetValue = if (isCheckedIn) {
-            MaterialTheme.colorScheme.primaryContainer
-        } else {
-            MaterialTheme.colorScheme.onBackground
-        },
-        animationSpec = tween(180),
-        label = "ringStroke"
     )
     val description = if (isCheckedIn) {
         stringResource(R.string.checked_in_today)
@@ -263,7 +254,13 @@ private fun CheckInRing(
             .scale(scale)
             .clip(CircleShape)
             .background(fill)
-            .border(2.dp, stroke, CircleShape)
+            .then(
+                if (isCheckedIn) {
+                    Modifier
+                } else {
+                    Modifier.border(2.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                }
+            )
             .clickable(
                 interactionSource = interactionSource,
                 indication = LocalIndication.current,

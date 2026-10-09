@@ -17,8 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -154,7 +154,7 @@ private fun TopBar(onNavigateBack: () -> Unit) {
             Icon(
                 painter = painterResource(R.drawable.ic_lucide_arrow_left),
                 contentDescription = stringResource(R.string.back),
-                tint = MaterialTheme.colorScheme.onBackground
+                tint = MaterialTheme.colorScheme.primary
             )
         }
         Text(
@@ -191,7 +191,7 @@ private fun MonthSelector(
             Icon(
                 painter = painterResource(R.drawable.ic_lucide_chevron_left),
                 contentDescription = stringResource(R.string.previous_month),
-                tint = MaterialTheme.colorScheme.onBackground
+                tint = MaterialTheme.colorScheme.primary
             )
         }
         IconButton(
@@ -202,9 +202,9 @@ private fun MonthSelector(
                 painter = painterResource(R.drawable.ic_lucide_chevron_right),
                 contentDescription = stringResource(R.string.next_month),
                 tint = if (isCurrentMonth) {
-                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.28f)
                 } else {
-                    MaterialTheme.colorScheme.onBackground
+                    MaterialTheme.colorScheme.primary
                 }
             )
         }
@@ -239,16 +239,8 @@ private fun CalendarGrid(
     val firstDayOfWeek = yearMonth.atDay(1).dayOfWeek.value % 7
     val daysInMonth = yearMonth.lengthOfMonth()
     val rows = (firstDayOfWeek + daysInMonth + 6) / 7
-    val shape = RoundedCornerShape(20.dp)
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(shape)
-            .background(MaterialTheme.colorScheme.surface)
-            .border(1.dp, MaterialTheme.colorScheme.outline, shape)
-            .padding(horizontal = 8.dp, vertical = 12.dp)
-    ) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Row(modifier = Modifier.fillMaxWidth()) {
             weekDays.forEach { (shortLabel, fullLabel) ->
                 Box(
@@ -266,7 +258,11 @@ private fun CalendarGrid(
                 }
             }
         }
-        Spacer(modifier = Modifier.height(4.dp))
+        HorizontalDivider(
+            modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.outline
+        )
         for (row in 0 until rows) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 for (col in 0..6) {
@@ -324,7 +320,7 @@ private fun DayCell(
             .background(if (isCheckedIn) seal else androidx.compose.ui.graphics.Color.Transparent)
             .then(
                 if (isToday && !isCheckedIn) {
-                    Modifier.border(1.5.dp, seal, CircleShape)
+                    Modifier.border(2.dp, seal, CircleShape)
                 } else {
                     Modifier
                 }
