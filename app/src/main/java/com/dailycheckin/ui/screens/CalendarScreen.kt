@@ -3,7 +3,6 @@ package com.dailycheckin.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
@@ -31,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -100,25 +101,8 @@ fun CalendarScreen(
                 text = summary,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 8.dp, bottom = if (checkedInDates.isEmpty()) 16.dp else 20.dp)
+                modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
             )
-            if (checkedInDates.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 20.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_lucide_square_dashed),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier
-                            .size(28.dp)
-                            .clearAndSetSemantics {}
-                    )
-                }
-            }
             CalendarGrid(
                 yearMonth = currentMonth,
                 checkedInDates = checkedInDates,
@@ -163,7 +147,7 @@ private fun TopBar(onNavigateBack: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 4.dp, end = 20.dp, top = 4.dp, bottom = 4.dp),
+            .padding(start = 4.dp, end = 20.dp, top = 4.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = onNavigateBack) {
@@ -199,7 +183,9 @@ private fun MonthSelector(
             text = currentMonth.format(formatter),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
+                .semantics { heading() }
         )
         IconButton(onClick = onPreviousMonth) {
             Icon(
@@ -216,7 +202,7 @@ private fun MonthSelector(
                 painter = painterResource(R.drawable.ic_lucide_chevron_right),
                 contentDescription = stringResource(R.string.next_month),
                 tint = if (isCurrentMonth) {
-                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
                 } else {
                     MaterialTheme.colorScheme.onBackground
                 }
@@ -229,7 +215,7 @@ private fun MonthSelector(
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier
-                .padding(top = 4.dp)
+                .padding(top = 2.dp, bottom = 4.dp)
                 .clickable(onClick = onTodayClick)
         )
     }
@@ -253,24 +239,34 @@ private fun CalendarGrid(
     val firstDayOfWeek = yearMonth.atDay(1).dayOfWeek.value % 7
     val daysInMonth = yearMonth.lengthOfMonth()
     val rows = (firstDayOfWeek + daysInMonth + 6) / 7
+    val shape = RoundedCornerShape(20.dp)
 
-    Column {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, MaterialTheme.colorScheme.outline, shape)
+            .padding(horizontal = 8.dp, vertical = 12.dp)
+    ) {
         Row(modifier = Modifier.fillMaxWidth()) {
             weekDays.forEach { (shortLabel, fullLabel) ->
                 Box(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(28.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = shortLabel,
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.semantics { contentDescription = fullLabel }
                     )
                 }
             }
         }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         for (row in 0 until rows) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 for (col in 0..6) {
@@ -278,8 +274,7 @@ private fun CalendarGrid(
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .aspectRatio(0.82f)
-                            .padding(2.dp),
+                            .aspectRatio(1f),
                         contentAlignment = Alignment.Center
                     ) {
                         if (dayOffset in 0 until daysInMonth) {
@@ -314,51 +309,34 @@ private fun DayCell(
         else -> stringResource(R.string.cd_day_missed, dateText)
     }
     val seal = MaterialTheme.colorScheme.primary
+    val onSeal = MaterialTheme.colorScheme.onPrimary
     val numberColor = when {
-        isCheckedIn -> seal
+        isCheckedIn -> onSeal
+        isToday -> seal
         isFuture -> MaterialTheme.colorScheme.onSurfaceVariant
         else -> MaterialTheme.colorScheme.onBackground
     }
 
-    Column(
+    Box(
         modifier = Modifier
-            .fillMaxSize()
-            .clearAndSetSemantics { contentDescription = description },
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Box(
-            modifier = Modifier
-                .size(36.dp)
-                .then(
-                    if (isToday) {
-                        Modifier.border(1.dp, seal, RoundedCornerShape(8.dp))
-                    } else {
-                        Modifier
-                    }
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = date.dayOfMonth.toString(),
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = if (isToday || isCheckedIn) FontWeight.Medium else FontWeight.Normal,
-                color = numberColor
+            .size(36.dp)
+            .clip(CircleShape)
+            .background(if (isCheckedIn) seal else androidx.compose.ui.graphics.Color.Transparent)
+            .then(
+                if (isToday && !isCheckedIn) {
+                    Modifier.border(1.5.dp, seal, CircleShape)
+                } else {
+                    Modifier
+                }
             )
-        }
-        Spacer(modifier = Modifier.height(2.dp))
-        Box(
-            modifier = Modifier.size(12.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            if (isCheckedIn) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_lucide_check),
-                    contentDescription = null,
-                    tint = seal,
-                    modifier = Modifier.size(12.dp)
-                )
-            }
-        }
+            .clearAndSetSemantics { contentDescription = description },
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = date.dayOfMonth.toString(),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = if (isToday || isCheckedIn) FontWeight.Medium else FontWeight.Normal,
+            color = numberColor
+        )
     }
 }

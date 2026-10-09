@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Seal square is the app mark. Check path is Lucide "check"
+<!-- The mark is a seal disc. The check is Lucide "check"
      https://github.com/lucide-icons/lucide/blob/main/icons/check.svg (ISC / Feather MIT).
      Stroke is heavier than the 24px source so the mark reads at launcher size. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
@@ -8,8 +8,8 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
     <path
-        android:pathData="M40,26 H68 A14,14 0 0 1 82,40 V68 A14,14 0 0 1 68,82 H40 A14,14 0 0 1 26,68 V40 A14,14 0 0 1 40,26 Z"
-        android:fillColor="#1E3A8A"/>
+        android:pathData="M54,22a32,32 0 1,1 0,64a32,32 0 1,1 0,-64"
+        android:fillColor="#1E3A5F"/>
     <group
         android:translateX="30"
         android:translateY="30"
@@ -19,7 +19,7 @@
             android:pathData="M20 6 9 17l-5-5"
             android:fillColor="#00000000"
             android:strokeColor="#FFFFFF"
-            android:strokeWidth="2.4"
+            android:strokeWidth="2.5"
             android:strokeLineCap="round"
             android:strokeLineJoin="round"/>
     </group>

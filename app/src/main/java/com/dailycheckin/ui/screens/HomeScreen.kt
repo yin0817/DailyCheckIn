@@ -25,7 +25,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -100,78 +100,81 @@ fun HomeScreen(
             .statusBarsPadding()
             .navigationBarsPadding()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 28.dp)
     ) {
         TopBar(
             onCalendarClick = onNavigateToCalendar,
             onSettingsClick = onNavigateToSettings
         )
 
-        Spacer(modifier = Modifier.height(36.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(40.dp))
 
-        Text(
-            text = today.format(DateTimeFormatter.ofPattern("M月d日", Locale.CHINA)),
-            style = MaterialTheme.typography.displayLarge,
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.semantics { heading() }
-        )
-        Text(
-            text = today.format(DateTimeFormatter.ofPattern("EEEE", Locale.CHINA)),
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 4.dp)
-        )
+            Text(
+                text = today.format(DateTimeFormatter.ofPattern("M月d日", Locale.CHINA)),
+                style = MaterialTheme.typography.displayLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.semantics { heading() }
+            )
+            Text(
+                text = today.format(DateTimeFormatter.ofPattern("EEEE", Locale.CHINA)),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp)
+            )
 
-        Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(36.dp))
 
-        CheckInStamp(
-            isCheckedIn = isCheckedIn,
-            onClick = {
-                if (!isCheckedIn) {
-                    val date = LocalDate.now()
-                    pendingDate = date
-                    scope.launch {
-                        try {
-                            dataStore.addCheckIn(date)
-                            NotificationHelper.scheduleDailyReminder(context)
-                            ReminderService.refresh(context)
-                        } catch (_: Exception) {
-                            if (pendingDate == date) pendingDate = null
+            CheckInRing(
+                isCheckedIn = isCheckedIn,
+                onClick = {
+                    if (!isCheckedIn) {
+                        val date = LocalDate.now()
+                        pendingDate = date
+                        scope.launch {
+                            try {
+                                dataStore.addCheckIn(date)
+                                NotificationHelper.scheduleDailyReminder(context)
+                                ReminderService.refresh(context)
+                            } catch (_: Exception) {
+                                if (pendingDate == date) pendingDate = null
+                            }
                         }
                     }
                 }
-            }
-        )
+            )
 
-        Text(
-            text = if (isCheckedIn) {
-                stringResource(R.string.marked_today)
-            } else {
-                stringResource(R.string.check_in_hint)
-            },
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier
-                .padding(top = 20.dp)
-                .clearAndSetSemantics {}
-        )
+            Text(
+                text = if (isCheckedIn) {
+                    stringResource(R.string.marked_today)
+                } else {
+                    stringResource(R.string.check_in_hint)
+                },
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .padding(top = 16.dp)
+                    .clearAndSetSemantics {}
+            )
 
-        Spacer(modifier = Modifier.height(40.dp))
-
-        Text(
-            text = presence,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier
-                .clickable(
-                    onClickLabel = stringResource(R.string.open_calendar),
-                    role = Role.Button,
-                    onClick = onNavigateToCalendar
-                )
-                .padding(vertical = 8.dp)
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
+            Text(
+                text = presence,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier
+                    .padding(top = 28.dp, bottom = 40.dp)
+                    .clickable(
+                        onClickLabel = stringResource(R.string.open_calendar),
+                        role = Role.Button,
+                        onClick = onNavigateToCalendar
+                    )
+                    .padding(vertical = 8.dp, horizontal = 12.dp)
+            )
+        }
     }
 }
 
@@ -183,7 +186,7 @@ private fun TopBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp),
+            .padding(start = 24.dp, end = 8.dp, top = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -210,16 +213,16 @@ private fun TopBar(
 }
 
 @Composable
-private fun CheckInStamp(
+private fun CheckInRing(
     isCheckedIn: Boolean,
     onClick: () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        targetValue = if (pressed && !isCheckedIn) 0.97f else 1f,
+        targetValue = if (pressed && !isCheckedIn) 0.98f else 1f,
         animationSpec = tween(120),
-        label = "stampScale"
+        label = "ringScale"
     )
     val fill by animateColorAsState(
         targetValue = if (isCheckedIn) {
@@ -228,7 +231,7 @@ private fun CheckInStamp(
             Color.Transparent
         },
         animationSpec = tween(180),
-        label = "stampFill"
+        label = "ringFill"
     )
     val content by animateColorAsState(
         targetValue = if (isCheckedIn) {
@@ -237,26 +240,30 @@ private fun CheckInStamp(
             MaterialTheme.colorScheme.onBackground
         },
         animationSpec = tween(180),
-        label = "stampContent"
+        label = "ringContent"
+    )
+    val stroke by animateColorAsState(
+        targetValue = if (isCheckedIn) {
+            MaterialTheme.colorScheme.primaryContainer
+        } else {
+            MaterialTheme.colorScheme.onBackground
+        },
+        animationSpec = tween(180),
+        label = "ringStroke"
     )
     val description = if (isCheckedIn) {
         stringResource(R.string.checked_in_today)
     } else {
         stringResource(R.string.check_in_today)
     }
-    val shape = RoundedCornerShape(20.dp)
 
     Box(
         modifier = Modifier
-            .size(156.dp)
+            .size(168.dp)
             .scale(scale)
-            .clip(shape)
+            .clip(CircleShape)
             .background(fill)
-            .border(
-                width = if (isCheckedIn) 0.dp else 1.5.dp,
-                color = MaterialTheme.colorScheme.onBackground,
-                shape = shape
-            )
+            .border(2.dp, stroke, CircleShape)
             .clickable(
                 interactionSource = interactionSource,
                 indication = LocalIndication.current,
@@ -275,7 +282,7 @@ private fun CheckInStamp(
             transitionSpec = {
                 fadeIn(tween(160)) togetherWith fadeOut(tween(100))
             },
-            label = "stampGlyph"
+            label = "ringGlyph"
         ) { checked ->
             if (checked) {
                 Icon(
@@ -283,13 +290,13 @@ private fun CheckInStamp(
                     contentDescription = null,
                     tint = content,
                     modifier = Modifier
-                        .size(72.dp)
+                        .size(56.dp)
                         .clearAndSetSemantics {}
                 )
             } else {
                 Text(
                     text = stringResource(R.string.check_in_action),
-                    fontSize = 28.sp,
+                    fontSize = 22.sp,
                     fontWeight = FontWeight.Medium,
                     color = content,
                     modifier = Modifier.clearAndSetSemantics {}

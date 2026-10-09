@@ -7,15 +7,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 /**
- * System CJK sans. The date is large and regular, not a bold score.
+ * System CJK sans. The date is a medium title, not a thin poster and not a score.
  * Letter-spacing stays at 0 so Chinese doesn't look tracked.
  */
 val Typography = Typography(
     displayLarge = TextStyle(
         fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Normal,
-        fontSize = 40.sp,
-        lineHeight = 48.sp,
+        fontWeight = FontWeight.Medium,
+        fontSize = 34.sp,
+        lineHeight = 42.sp,
         letterSpacing = 0.sp
     ),
     displayMedium = TextStyle(
@@ -56,8 +56,8 @@ val Typography = Typography(
     titleLarge = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Medium,
-        fontSize = 20.sp,
-        lineHeight = 28.sp,
+        fontSize = 22.sp,
+        lineHeight = 30.sp,
         letterSpacing = 0.sp
     ),
     titleMedium = TextStyle(

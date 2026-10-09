@@ -3,7 +3,9 @@ package com.dailycheckin.ui.screens
 import android.app.TimePickerDialog
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,10 +16,10 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
@@ -36,6 +38,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
@@ -101,143 +104,156 @@ fun SettingsScreen(
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
                 .navigationBarsPadding()
-                .padding(horizontal = 28.dp)
+                .padding(horizontal = 20.dp)
         ) {
             SectionLabel(stringResource(R.string.settings_section_reminder))
-            SettingsSwitchItem(
-                icon = R.drawable.ic_lucide_bell,
-                title = stringResource(R.string.daily_reminder),
-                subtitle = if (reminderEnabled) {
-                    stringResource(R.string.reminder_on)
-                } else {
-                    stringResource(R.string.reminder_off)
-                },
-                checked = reminderEnabled,
-                onCheckedChange = { enabled ->
-                    reminderEnabled = enabled
-                    scope.launch {
-                        dataStore.setReminderEnabled(enabled)
-                        if (enabled) {
-                            NotificationHelper.scheduleDailyReminder(context)
-                            ReminderService.refresh(context)
-                        } else {
-                            NotificationHelper.cancelReminder(context)
+            SettingsGroup {
+                SettingsSwitchItem(
+                    icon = R.drawable.ic_lucide_bell,
+                    title = stringResource(R.string.daily_reminder),
+                    subtitle = if (reminderEnabled) {
+                        stringResource(R.string.reminder_on)
+                    } else {
+                        stringResource(R.string.reminder_off)
+                    },
+                    checked = reminderEnabled,
+                    onCheckedChange = { enabled ->
+                        reminderEnabled = enabled
+                        scope.launch {
+                            dataStore.setReminderEnabled(enabled)
+                            if (enabled) {
+                                NotificationHelper.scheduleDailyReminder(context)
+                                ReminderService.refresh(context)
+                            } else {
+                                NotificationHelper.cancelReminder(context)
+                            }
                         }
                     }
-                }
-            )
-            AnimatedVisibility(visible = reminderEnabled) {
-                Column {
-                    Hairline()
-                    SettingsItem(
-                        icon = R.drawable.ic_lucide_clock,
-                        title = stringResource(R.string.reminder_time),
-                        subtitle = String.format("%02d:%02d", reminderHour, reminderMinute),
-                        onClick = {
-                            TimePickerDialog(
-                                context,
-                                { _, hour, minute ->
-                                    reminderHour = hour
-                                    reminderMinute = minute
-                                    scope.launch {
-                                        dataStore.setReminderTime(hour, minute)
-                                        NotificationHelper.scheduleDailyReminder(context)
-                                        ReminderService.refresh(context)
-                                    }
-                                },
-                                reminderHour,
-                                reminderMinute,
-                                true
-                            ).show()
-                        }
-                    )
-                    Hairline()
-                    SettingsSwitchItem(
-                        icon = R.drawable.ic_lucide_shield,
-                        title = stringResource(R.string.enhanced_reminder),
-                        subtitle = if (enhancedReminder) {
-                            stringResource(R.string.enhanced_reminder_subtitle_on)
-                        } else {
-                            stringResource(R.string.enhanced_reminder_subtitle_off)
-                        },
-                        checked = enhancedReminder,
-                        onCheckedChange = { enabled ->
-                            if (enabled && !enhancedReminder) {
-                                showEnhancedReminderDialog = true
+                )
+                AnimatedVisibility(visible = reminderEnabled) {
+                    Column {
+                        Hairline()
+                        SettingsItem(
+                            icon = R.drawable.ic_lucide_clock,
+                            title = stringResource(R.string.reminder_time),
+                            subtitle = String.format("%02d:%02d", reminderHour, reminderMinute),
+                            onClick = {
+                                TimePickerDialog(
+                                    context,
+                                    { _, hour, minute ->
+                                        reminderHour = hour
+                                        reminderMinute = minute
+                                        scope.launch {
+                                            dataStore.setReminderTime(hour, minute)
+                                            NotificationHelper.scheduleDailyReminder(context)
+                                            ReminderService.refresh(context)
+                                        }
+                                    },
+                                    reminderHour,
+                                    reminderMinute,
+                                    true
+                                ).show()
+                            }
+                        )
+                        Hairline()
+                        SettingsSwitchItem(
+                            icon = R.drawable.ic_lucide_shield,
+                            title = stringResource(R.string.enhanced_reminder),
+                            subtitle = if (enhancedReminder) {
+                                stringResource(R.string.enhanced_reminder_subtitle_on)
                             } else {
-                                enhancedReminder = enabled
-                                scope.launch {
-                                    dataStore.setEnhancedReminder(enabled)
-                                    if (enabled) {
-                                        ReminderService.start(context)
-                                    } else {
-                                        ReminderService.stop(context)
+                                stringResource(R.string.enhanced_reminder_subtitle_off)
+                            },
+                            checked = enhancedReminder,
+                            onCheckedChange = { enabled ->
+                                if (enabled && !enhancedReminder) {
+                                    showEnhancedReminderDialog = true
+                                } else {
+                                    enhancedReminder = enabled
+                                    scope.launch {
+                                        dataStore.setEnhancedReminder(enabled)
+                                        if (enabled) {
+                                            ReminderService.start(context)
+                                        } else {
+                                            ReminderService.stop(context)
+                                        }
                                     }
                                 }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
 
             SectionLabel(stringResource(R.string.settings_section_appearance))
-            Text(
-                text = stringResource(R.string.theme),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-            ThemeModePicker(
-                themeMode = themeMode,
-                onSelect = { mode ->
-                    themeMode = mode
-                    onThemeChange(mode)
-                    scope.launch {
-                        dataStore.setThemeMode(mode)
+            SettingsGroup {
+                Text(
+                    text = stringResource(R.string.theme),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp)
+                )
+                ThemeModePicker(
+                    themeMode = themeMode,
+                    onSelect = { mode ->
+                        themeMode = mode
+                        onThemeChange(mode)
+                        scope.launch {
+                            dataStore.setThemeMode(mode)
+                        }
                     }
-                }
-            )
+                )
+            }
 
             SectionLabel(stringResource(R.string.settings_section_background))
-            SettingsItem(
-                icon = R.drawable.ic_lucide_battery,
-                title = stringResource(R.string.battery_optimization_title),
-                subtitle = if (batteryIgnored) {
-                    stringResource(R.string.battery_status_ok)
-                } else {
-                    stringResource(R.string.battery_status_needed)
-                },
-                onClick = { showBatteryDialog = true }
-            )
+            SettingsGroup {
+                SettingsItem(
+                    icon = R.drawable.ic_lucide_battery,
+                    title = stringResource(R.string.battery_optimization_title),
+                    subtitle = if (batteryIgnored) {
+                        stringResource(R.string.battery_status_ok)
+                    } else {
+                        stringResource(R.string.battery_status_needed)
+                    },
+                    onClick = { showBatteryDialog = true }
+                )
+            }
 
             SectionLabel(stringResource(R.string.settings_section_data))
-            SettingsItem(
-                icon = R.drawable.ic_lucide_trash,
-                title = stringResource(R.string.clear_data),
-                subtitle = stringResource(R.string.clear_data_subtitle),
-                isDestructive = true,
-                onClick = { showClearDataDialog = true }
-            )
+            SettingsGroup {
+                SettingsItem(
+                    icon = R.drawable.ic_lucide_trash,
+                    title = stringResource(R.string.clear_data),
+                    subtitle = stringResource(R.string.clear_data_subtitle),
+                    isDestructive = true,
+                    onClick = { showClearDataDialog = true }
+                )
+            }
 
             SectionLabel(stringResource(R.string.about))
-            Text(
-                text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-            Text(
-                text = stringResource(R.string.version, "1.0.0"),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-            Text(
-                text = stringResource(R.string.privacy_note),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 8.dp, bottom = 32.dp)
-            )
+            SettingsGroup {
+                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
+                    Text(
+                        text = stringResource(R.string.app_name),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Text(
+                        text = stringResource(R.string.version, "1.0.0"),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.privacy_note),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 
@@ -335,7 +351,7 @@ private fun TopBar(onNavigateBack: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 4.dp, end = 20.dp, top = 4.dp),
+            .padding(start = 4.dp, end = 20.dp, top = 4.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = onNavigateBack) {
@@ -358,17 +374,35 @@ private fun TopBar(onNavigateBack: () -> Unit) {
 private fun SectionLabel(title: String) {
     Text(
         text = title,
-        style = MaterialTheme.typography.bodyMedium,
+        style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier
-            .padding(top = 28.dp, bottom = 4.dp)
+            .padding(start = 16.dp, top = 24.dp, bottom = 8.dp)
             .semantics { heading() }
     )
 }
 
 @Composable
+private fun SettingsGroup(content: @Composable () -> Unit) {
+    val shape = RoundedCornerShape(20.dp)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, MaterialTheme.colorScheme.outline, shape)
+    ) {
+        content()
+    }
+}
+
+@Composable
 private fun Hairline() {
-    HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
+    HorizontalDivider(
+        modifier = Modifier.padding(start = 52.dp),
+        color = MaterialTheme.colorScheme.outline,
+        thickness = 1.dp
+    )
 }
 
 @Composable
@@ -379,24 +413,25 @@ private fun SettingsItem(
     isDestructive: Boolean = false,
     onClick: () -> Unit
 ) {
+    val tint = if (isDestructive) {
+        MaterialTheme.colorScheme.error
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick, role = Role.Button)
-            .padding(vertical = 14.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             painter = painterResource(icon),
             contentDescription = null,
-            tint = if (isDestructive) {
-                MaterialTheme.colorScheme.error
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
-            },
-            modifier = Modifier.size(20.dp)
+            tint = tint,
+            modifier = Modifier.size(22.dp)
         )
-        Column(modifier = Modifier.padding(start = 16.dp)) {
+        Column(modifier = Modifier.padding(start = 14.dp)) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
@@ -434,19 +469,19 @@ private fun SettingsSwitchItem(
                 role = Role.Switch,
                 onValueChange = onCheckedChange
             )
-            .padding(vertical = 12.dp),
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             painter = painterResource(icon),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(22.dp)
         )
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(start = 16.dp)
+                .padding(start = 14.dp, end = 12.dp)
         ) {
             Text(
                 text = title,
@@ -462,7 +497,6 @@ private fun SettingsSwitchItem(
                 )
             }
         }
-        Spacer(modifier = Modifier.width(16.dp))
         Switch(
             checked = checked,
             onCheckedChange = null,
@@ -484,42 +518,41 @@ private fun ThemeModePicker(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp, bottom = 4.dp)
+            .padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 12.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(4.dp)
     ) {
         options.forEach { (value, label) ->
             val selected = themeMode == value
-            Column(
+            Box(
                 modifier = Modifier
-                    .padding(end = 24.dp)
+                    .weight(1f)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(
+                        if (selected) {
+                            MaterialTheme.colorScheme.surfaceContainerHigh
+                        } else {
+                            androidx.compose.ui.graphics.Color.Transparent
+                        }
+                    )
                     .selectable(
                         selected = selected,
                         role = Role.RadioButton,
                         onClick = { if (!selected) onSelect(value) }
                     )
-                    .padding(vertical = 8.dp)
+                    .padding(vertical = 10.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = label,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.bodyMedium,
                     fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal,
                     color = if (selected) {
                         MaterialTheme.colorScheme.onBackground
                     } else {
                         MaterialTheme.colorScheme.onSurfaceVariant
                     }
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                Spacer(
-                    modifier = Modifier
-                        .height(2.dp)
-                        .width(28.dp)
-                        .background(
-                            if (selected) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                androidx.compose.ui.graphics.Color.Transparent
-                            }
-                        )
                 )
             }
         }
